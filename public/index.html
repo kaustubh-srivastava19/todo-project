@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>To-Do App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2 class="logo">MyTodo</h2>
+
+      <button class="add-task-btn" onclick="showAddTask()">
+        + Add Task
+      </button>
+
+      <nav>
+        <ul id="menu">
+          <li class="active" onclick="filterTodos('inbox')">📥 Inbox</li>
+          <li onclick="filterTodos('today')">📅 Today</li>
+          <li onclick="filterTodos('upcoming')">⏳ Upcoming</li>
+          <li onclick="filterTodos('completed')">✅ Completed</li>
+        </ul>
+      </nav>
+
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </aside>
+
+    <!-- Main Content -->
+     <main class="content">
+  <div class="inbox-container">
+
+    <h1 id="pageTitle">Inbox</h1>
+
+    <div id="addTaskSection">
+      <input id="taskInput" placeholder="What is your task?" />
+      <button onclick="addTodo()">Add</button>
+    </div>
+
+    <ul id="todoList"></ul>
+
+  </div>
+</main>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
