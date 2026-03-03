@@ -9,20 +9,22 @@
 
 <div class="auth-container">
   <div class="auth-card">
+ <h2>Login</h2>
 
-    <h2 id="title">Login</h2>
+<input id="email" type="email" placeholder="Email" />
+<input id="password" type="password" placeholder="Password" />
 
-    <input id="email" type="email" placeholder="Email" />
-    <input id="password" type="password" placeholder="Password" />
+<button type="button" id="authButton" onclick="handleAuth()">
+  Login
+</button>
 
-    <button id="authBtn">Login</button>
-
-    <p class="toggle-text">
-      Don’t have an account?
-      <span onclick="toggleAuth()">Sign up</span>
-    </p>
-
-  </div>
+<p id="toggleText">
+  Don't have an account?
+  <button type="button" class="switch-btn" onclick="toggleAuth()">
+    Sign up
+  </button>
+</p>
+</div>
 </div>
 
 <script src="auth.js"></script>

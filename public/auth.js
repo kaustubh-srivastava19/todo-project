@@ -1,49 +1,50 @@
 let isLogin = true;
 
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const authBtn = document.getElementById("authBtn");
-const title = document.getElementById("title");
-
-authBtn.addEventListener("click", handleAuth);
-
-function toggleAuth() {
+window.toggleAuth = function () {
   isLogin = !isLogin;
 
-  title.innerText = isLogin ? "Login" : "Sign Up";
-  authBtn.innerText = isLogin ? "Login" : "Sign Up";
-}
+  const heading = document.querySelector("h2");
+  const button = document.getElementById("authButton");
+  const toggleText = document.getElementById("toggleText");
 
-async function handleAuth() {
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
-
-  if (!email || !password) {
-    alert("Please fill all fields");
-    return;
+  if (isLogin) {
+    heading.innerText = "Login";
+    button.innerText = "Login";
+    toggleText.innerHTML =
+      `Don't have an account?
+       <button onclick="toggleAuth()">Sign up</button>`;
+  } else {
+    heading.innerText = "Sign Up";
+    button.innerText = "Sign Up";
+    toggleText.innerHTML =
+      `Already have an account?
+       <button onclick="toggleAuth()">Login</button>`;
   }
+};
+
+window.handleAuth = async function () {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
   const url = isLogin ? "/api/login" : "/api/signup";
 
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+    credentials: "include"   // IMPORTANT
+  });
 
+  if (!res.ok) {
     const data = await res.json();
-
-    if (!res.ok) {
-      alert(data.message || "Authentication failed");
-      return;
-    }
-
-    localStorage.setItem("token", data.token);
-    window.location.href = "index.html";
-
-  } catch (err) {
-    console.error(err);
-    alert("Something went wrong");
+    alert(data.message);
+    return;
   }
-}
+
+  if (isLogin) {
+    window.location.href = "index.html";
+  } else {
+    alert("Account created. Please login.");
+    toggleAuth();
+  }
+};

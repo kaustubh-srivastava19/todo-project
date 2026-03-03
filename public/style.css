@@ -57,6 +57,34 @@ body {
   cursor: pointer;
 }
 
+.link-btn {
+  background: none;
+  border: none;
+  color: #1a73e8;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+.switch-btn {
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  font-size: 13px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+.switch-btn:hover {
+  background-color: #1558c0;
+}
+
 /* ================= MAIN CONTENT ================= */
 
 .content {
@@ -65,7 +93,6 @@ body {
   background: #f9fafb;
 }
 
-/* Container to keep content aligned left */
 .inbox-container {
   max-width: 700px;
 }
