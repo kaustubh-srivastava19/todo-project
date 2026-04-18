@@ -1,11 +1,21 @@
-require("dotenv").config();
+const path = require("path");
+const envFile =
+  process.env.NODE_ENV === "production"
+    ? ".env.production"
+    : ".env";
+
+require("dotenv").config({
+  path: path.resolve(__dirname, `../${envFile}`)
+});
+
 const app = require("./app");
 const connectDB = require("./config/db");
-
-connectDB();
+const config = require("./config/config");
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+connectDB();
+
+app.listen(config.port, () => {
+  console.log(`Server running on port ${config.port}`);
 });

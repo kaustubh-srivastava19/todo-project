@@ -23,28 +23,35 @@ window.toggleAuth = function () {
 };
 
 window.handleAuth = async function () {
+  console.log("Button clicked");
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  const url = isLogin ? "/api/login" : "/api/signup";
+  const url = isLogin ? "/api/auth/login" : "/api/auth/signup";
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-    credentials: "include"   // IMPORTANT
-  });
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+      credentials: "include"
+    });
 
-  if (!res.ok) {
     const data = await res.json();
-    alert(data.message);
-    return;
-  }
 
-  if (isLogin) {
-    window.location.href = "index.html";
-  } else {
-    alert("Account created. Please login.");
-    toggleAuth();
+    if (!res.ok) {
+      alert(data.errors?.[0]?.msg || data.message || "Auth failed");
+      return;
+    }
+
+    if (isLogin) {
+      window.location.href = "index.html";
+    } else {
+      alert("Account created. Please login.");
+      toggleAuth();
+    }
+
+  } catch (err) {
+    console.error("Auth error:", err);
   }
 };

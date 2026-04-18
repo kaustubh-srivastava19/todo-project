@@ -1,4 +1,6 @@
-window.fetchTodos = async function () {
+
+// FETCH TODOS
+async function fetchTodos() {
   const res = await fetch("/api/todos", {
     credentials: "include"
   });
@@ -9,59 +11,74 @@ window.fetchTodos = async function () {
   }
 
   const todos = await res.json();
-  renderTodos(todos);
+  applyFilter(todos);
 }
 
-window.renderTodos = function (todos) {
-  const list = document.getElementById("todoList");
-  list.innerHTML = "";
+// APPLY FILTER
+function applyFilter(todos) {
+  let filtered = [];
 
-  todos.forEach(todo => {
-    const li = document.createElement("li");
+  const today = new Date().toISOString().split("T")[0];
 
-   li.innerHTML = `
-      <span id="text-${todo._id}" 
-        style="${todo.completed ? 'text-decoration: line-through;' : ''}">
-        ${todo.text}
-      </span>
+  if (currentFilter === "today") {
+    filtered = todos.filter(t => t.dueDate && t.dueDate.startsWith(today));
+  } 
+  else if (currentFilter === "upcoming") {
+    filtered = todos.filter(t => t.dueDate && t.dueDate > today);
+  } 
+  else if (currentFilter === "completed") {
+    filtered = todos.filter(t => t.completed);
+  } 
+  else {
+    filtered = todos;
+  }
 
-      <input 
-        id="input-${todo._id}" 
-        value="${todo.text}" 
-        style="display:none;" 
-      />
+  renderTodos(filtered);
+}
 
-      <div>
-        <button onclick="toggleComplete('${todo._id}')">✔</button>
-        <button onclick="showEdit('${todo._id}')">✏️</button>
-        <button onclick="saveEdit('${todo._id}')" style="display:none;">💾</button>
-        <button onclick="deleteTodo('${todo._id}')">❌</button>
-      </div>
-    `;
-
-    list.appendChild(li);
-  });
+window.filterTodos = function (type) {
+  currentFilter = type;
+  fetchTodos();
 };
+
+// ADD TODO
 window.addTodo = async function () {
-  const text = document.getElementById("taskInput").value.trim();
-  const dueDate = document.getElementById("dueDate").value;
+  const input = document.getElementById("taskInput");
+  const dateInput = document.getElementById("dueDateInput");
 
-  if (!text) return;
+  const text = input.value.trim();
+  const dueDate = dateInput ? dateInput.value : null;
 
-  await fetch("/api/todos", {
+  // ✅ FRONTEND VALIDATION
+  if (!text) {
+    alert("Task cannot be empty");
+    return;
+  }
+
+  const res = await fetch("/api/todos", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ text, dueDate })
+    body: JSON.stringify({
+      text,
+      dueDate: dueDate || null   // ✅ send only needed fields
+    })
   });
 
-  document.getElementById("taskInput").value = "";
-  document.getElementById("dueDate").value = "";
+  if (!res.ok) {
+    const err = await res.json();
+    alert(err.message || "Failed to add todo");
+    return;
+  }
+
+  input.value = "";
+  if (dateInput) dateInput.value = "";
 
   fetchTodos();
 };
 
-window.deleteTodo = async function (id) {
+// DELETE TODO
+async function deleteTodo(id) {
   await fetch(`/api/todos/${id}`, {
     method: "DELETE",
     credentials: "include"
@@ -70,118 +87,109 @@ window.deleteTodo = async function (id) {
   fetchTodos();
 }
 
-async function editTodo(id) {
-  const newText = prompt("Enter new task:");
-  if (!newText) return;
-
-  await fetch(`/api/todos/${id}`, {
+// TOGGLE COMPLETE
+async function toggleTodo(id) {
+  await fetch(`/api/todos/${id}/toggle`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: newText }),
     credentials: "include"
   });
 
   fetchTodos();
 }
 
-window.logout = async function () {
-  const confirmLogout = confirm("Are you sure you want to logout?");
-  if (!confirmLogout) return;
+// UPDATE TODO
+async function updateTodo(id, newText) {
+  if (!newText.trim()) {
+    alert("Task cannot be empty");
+    return;
+  }
 
+  await fetch(`/api/todos/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({
+      text: newText   // ✅ only required field
+    })
+  });
+
+  fetchTodos();
+}
+
+// RENDER TODOS
+function renderTodos(todos) {
+  const list = document.getElementById("todoList");
+  list.innerHTML = "";
+
+  todos.forEach(todo => {
+    const li = document.createElement("li");
+
+    const textSpan = document.createElement("span");
+    textSpan.innerText = todo.text;
+
+    if (todo.completed) {
+      textSpan.style.textDecoration = "line-through";
+    }
+
+    // EDIT INPUT (hidden initially)
+    const editInput = document.createElement("input");
+    editInput.value = todo.text;
+    editInput.style.display = "none";
+
+    // BUTTONS
+    const toggleBtn = document.createElement("button");
+    toggleBtn.innerText = "✔";
+    toggleBtn.onclick = () => toggleTodo(todo._id);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.innerText = "❌";
+    deleteBtn.onclick = () => deleteTodo(todo._id);
+
+    const editBtn = document.createElement("button");
+    editBtn.innerText = "✏️";
+
+    const saveBtn = document.createElement("button");
+    saveBtn.innerText = "💾";
+    saveBtn.style.display = "none";
+
+    // EDIT MODE LOGIC
+    editBtn.onclick = () => {
+      textSpan.style.display = "none";
+      editInput.style.display = "inline";
+      saveBtn.style.display = "inline";
+      editBtn.style.display = "none";
+    };
+
+    saveBtn.onclick = () => {
+      updateTodo(todo._id, editInput.value);
+
+      textSpan.style.display = "inline";
+      editInput.style.display = "none";
+      saveBtn.style.display = "none";
+      editBtn.style.display = "inline";
+    };
+
+    // APPEND ELEMENTS
+    li.appendChild(toggleBtn);
+    li.appendChild(textSpan);
+    li.appendChild(editInput);
+    li.appendChild(editBtn);
+    li.appendChild(saveBtn);
+    li.appendChild(deleteBtn);
+
+    list.appendChild(li);
+  });
+}
+
+// LOGOUT
+window.logout = async function () {
   await fetch("/api/logout", {
     method: "POST",
     credentials: "include"
   });
 
-  window.location.href = "/auth.html";
+  window.location.href = "auth.html";
 };
 
-window.filterTodos = async function (type) {
-  try {
-    const res = await fetch("/api/todos", {
-      credentials: "include"
-    });
-
-    const todos = await res.json();
-
-    let filtered = [];
-    const today = new Date().toDateString();
-
-    if (type === "today") {
-      filtered = todos.filter(t =>
-        t.dueDate && new Date(t.dueDate).toDateString() === today
-      );
-    } 
-    
-else if (type === "upcoming") {
-      filtered = todos.filter(t =>
-        t.dueDate && new Date(t.dueDate) > new Date()
-      );
-    } 
-    else if (type === "completed") {
-      filtered = todos.filter(t => t.completed);
-    } 
-    else {
-      filtered = todos; // inbox
-    }
-
-    renderTodos(filtered);
-
-  } catch (err) {
-    console.error("Filter error:", err);
-  }
-};
-window.toggleComplete = async function (id) {
-  try {
-    await fetch(`/api/todos/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      credentials: "include",
-      body: JSON.stringify({ toggle: true })
-    });
-
-    fetchTodos();
-
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-window.showEdit = function (id) {
-  document.getElementById(`text-${id}`).style.display = "none";
-  document.getElementById(`input-${id}`).style.display = "inline";
-  document.getElementById(`edit-${id}`).style.display = "none";
-  document.getElementById(`save-${id}`).style.display = "inline";
-};
-
-window.saveEdit = async function (id) {
-  const input = document.getElementById(`input-${id}`);
-  const newText = input.value;
-
-  if (!newText.trim()) return;
-
-  try {
-    await fetch(`/api/todos/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      credentials: "include",
-      body: JSON.stringify({ text: newText })
-    });
-
-    // Switch UI back
-    document.getElementById(`text-${id}`).style.display = "inline";
-    document.getElementById(`input-${id}`).style.display = "none";
-
-    document.getElementById(`edit-${id}`).style.display = "inline";
-    document.getElementById(`save-${id}`).style.display = "none";
-
-    fetchTodos();
-
-  } catch (err) {
-    console.error("Update error:", err);
-  }
-};
+// INITIAL LOAD
+fetchTodos();
