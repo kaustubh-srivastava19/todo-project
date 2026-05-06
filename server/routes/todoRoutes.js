@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { verifyCsrf } = require("../middleware/csrfProtection");
 
 const auth = require("../middleware/authMiddleware");
 
@@ -8,28 +9,28 @@ const {
   createTodo,
   deleteTodo,
   updateTodo,
-  toggleTodo
+  toggleTodo,
 } = require("../controllers/todoController");
 
 // ✅ Importing Validators
 const {
   createTodoValidation,
-  updateTodoValidation
+  updateTodoValidation,
 } = require("../validators/todoValidator");
 
 // GET
-router.get("/", auth, getTodos);
+router.get("/", auth,  getTodos);
 
 // VALIDATION
-router.post("/", auth, createTodoValidation, createTodo);
+router.post("/", auth,  verifyCsrf, createTodoValidation, createTodo);
 
 // UPDATE
-router.put("/:id", auth, updateTodoValidation, updateTodo);
+router.put("/:id", auth, verifyCsrf,updateTodoValidation, updateTodo);
 
 // TOGGLE
-router.patch("/:id/toggle", auth, toggleTodo);
+router.patch("/:id/toggle", auth, verifyCsrf,toggleTodo);
 
 // DELETE
-router.delete("/:id", auth, deleteTodo);
+router.delete("/:id", auth, verifyCsrf,deleteTodo);
 
 module.exports = router;

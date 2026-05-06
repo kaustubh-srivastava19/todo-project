@@ -87,6 +87,17 @@ body {
 
 /* ================= MAIN CONTENT ================= */
 
+button {
+  background-color: #222;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+}
+
+button:focus {
+  outline: 2px solid #00aaff;
+}
+
 .content {
   flex: 1;
   padding: 40px 60px;
@@ -149,7 +160,7 @@ body {
   padding: 14px 16px;
   margin-bottom: 12px;
   border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   transition: 0.2s;
 }
 
@@ -204,7 +215,7 @@ body {
   padding: 35px;
   width: 320px;
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 

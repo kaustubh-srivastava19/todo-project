@@ -1,5 +1,8 @@
 let isLogin = true;
 
+// ===============================
+// TOGGLE LOGIN / SIGNUP UI
+// ===============================
 window.toggleAuth = function () {
   isLogin = !isLogin;
 
@@ -22,36 +25,65 @@ window.toggleAuth = function () {
   }
 };
 
-window.handleAuth = async function () {
-  console.log("Button clicked");
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+// VALIDATION HELPERS
+function isValidEmail(email) {
+  // simple but effective email regex
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
-  const url = isLogin ? "/api/auth/login" : "/api/auth/signup";
+function isValidPassword(password) {
+  // min 12 chars (as per your backend)
+  return password.length >= 12;
+}// HANDLE AUTH
+window.handleAuth = async function () {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  
+  if (!email || !password) {
+    return alert("Email and password are required");
+  }
+
+  if (!isValidEmail(email)) {
+    return alert("Please enter a valid email address");
+  }
+
+  if (!isLogin && !isValidPassword(password)) {
+    return alert("Password must be at least 12 characters long");
+  }
+
+  // ===============================
+  // API CALL
+  // ===============================
+  const url = isLogin ? "/api/login" : "/api/signup";
 
   try {
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-      credentials: "include"
+      credentials: "include",
+      body: JSON.stringify({ email, password })
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data.errors?.[0]?.msg || data.message || "Auth failed");
-      return;
+      const message =
+        data?.errors?.[0]?.msg ||
+        data?.message ||
+        "Authentication failed";
+
+      return alert(message);
     }
 
     if (isLogin) {
       window.location.href = "index.html";
     } else {
-      alert("Account created. Please login.");
+      alert("Account created successfully. Please login.");
       toggleAuth();
     }
 
   } catch (err) {
     console.error("Auth error:", err);
+    alert("Something went wrong. Please try again.");
   }
 };

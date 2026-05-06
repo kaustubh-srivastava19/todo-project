@@ -1,42 +1,21 @@
 const mongoose = require("mongoose");
-const config = require("./config");
-
-const MAX_RETRIES = 5;
-let retries = 0;
+const logger = require("../utils/logger");
 
 const connectDB = async () => {
   try {
-    mongoose.connect(config.db.uri, {
-  autoIndex: config.env !== "production"
-});
+    await mongoose.connect(process.env.MONGO_URI);
 
-    console.log(" MongoDB Connected");
+    logger.info("MongoDB connected", {
+      requestId: "SYSTEM",
+    });
 
   } catch (err) {
-    console.error(" MongoDB connection failed:", err.message);
-
-    if (retries < MAX_RETRIES) {
-      retries++;
-      console.log(` Retrying connection (${retries}/${MAX_RETRIES})...`);
-
-      setTimeout(connectDB, 5000); // retry after 5 sec
-    } else {
-      console.error(" Max retries reached. Running without DB...");
-    }
+    logger.error("DB connection failed", {
+      requestId: "SYSTEM",
+      message: err.message,
+    });
+    process.exit(1);
   }
 };
-
-// MONITORING EVENTS
-mongoose.connection.on("connected", () => {
-  console.log("Mongoose connected");
-});
-
-mongoose.connection.on("error", (err) => {
-  console.error("Mongoose error:", err.message);
-});
-
-mongoose.connection.on("disconnected", () => {
-  console.warn("Mongoose disconnected");
-});
 
 module.exports = connectDB;

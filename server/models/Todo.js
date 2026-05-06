@@ -6,28 +6,29 @@ const todoSchema = new mongoose.Schema(
       type: String,
       required: [true, "Todo text is required"],
       trim: true,
-      maxlength: [200, "Text too long"]
+      maxlength: [200, "Text too long"],
     },
 
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true
+      required: true,
     },
 
     completed: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     dueDate: {
       type: Date,
-      default: null
-    }
+      default: null,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-todoSchema.index({ user: 1 });
+todoSchema.index({ user: 1, completed: 1 });
+todoSchema.index({ user: 1, dueDate: 1 });
 
 module.exports = mongoose.model("Todo", todoSchema);
