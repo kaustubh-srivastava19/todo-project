@@ -1,13 +1,17 @@
 require("./setup");
 
 const request = require("supertest");
-const app = require("../server/app");
+const mongoose = require("mongoose");
+const app = require("../app");
 
 describe("Auth APIs", () => {
+  afterAll(async () => {
+  await mongoose.connection.close();
+});
 
   test("Signup success", async () => {
     const res = await request(app)
-      .post("/api/signup")
+      .post("/api/auth/signup")
       .send({
         email: "test@test.com",
         password: "Password@123"
@@ -17,12 +21,12 @@ describe("Auth APIs", () => {
   });
 
   test("Reject duplicate email", async () => {
-    await request(app).post("/api/signup").send({
+    await request(app).post("/api/auth/signup").send({
       email: "test@test.com",
       password: "Password@123"
     });
 
-    const res = await request(app).post("/api/signup").send({
+    const res = await request(app).post("/api/auth/signup").send({
       email: "test@test.com",
       password: "Password@123"
     });
@@ -31,17 +35,18 @@ describe("Auth APIs", () => {
   });
 
   test("Login success", async () => {
-    await request(app).post("/api/signup").send({
+    await request(app).post("/api/auth/signup").send({
       email: "test@test.com",
       password: "Password@123"
     });
 
-    const res = await request(app).post("/api/login").send({
+    const res = await request(app).post("/api/auth/login").send({
       email: "test@test.com",
       password: "Password@123"
     });
 
     expect(res.headers["set-cookie"]).toBeDefined();
   });
+
 
 });

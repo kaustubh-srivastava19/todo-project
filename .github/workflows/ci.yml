@@ -32,7 +32,7 @@ jobs:
 
       # Run tests
       - name: Run tests
-        run: npm test
+        run: npm test --if-present
 
       # (Optional) Coverage
       - name: Run coverage

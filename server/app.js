@@ -14,7 +14,7 @@ const app = express();
 const Sentry = require("@sentry/node");
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
+  dsn: process.env.SENTRY_DSN || "",
   integrations: [],
   tracesSampleRate: 1.0,
 });

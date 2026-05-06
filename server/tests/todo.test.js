@@ -1,39 +1,44 @@
 require("./setup");
 
 const request = require("supertest");
-const app = require("../server/app");
+const app = require("../app");
+const mongoose = require("mongoose");
 
-let cookie;
+const agent = request.agent(app);
 
 beforeEach(async () => {
-  
-  await request(app).post("/api/signup").send({
+  // Signup
+  await agent.post("/api/auth/signup").send({
     email: "user@test.com",
-    password: "Password@123"
+    password: "Password@123",
   });
 
-  const res = await request(app).post("/api/login").send({
+  // Login
+  const res = await agent.post("/api/auth/login").send({
     email: "user@test.com",
-    password: "Password@123"
+    password: "Password@123",
   });
 
-  cookie = res.headers["set-cookie"];
+});
+
+afterAll(async () => {
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.close();
+  }
 });
 
 describe("Todo APIs", () => {
 
   test("Create todo", async () => {
-    const res = await request(app)
+    const res = await agent
       .post("/api/todos")
-      .set("Cookie", cookie)
       .send({ text: "Test Todo" });
 
     expect(res.statusCode).toBe(201);
   });
 
   test("Reject unauthenticated access", async () => {
-    const res = await request(app)
-      .get("/api/todos");
+    const res = await request(app).get("/api/todos");
 
     expect(res.statusCode).toBe(401);
   });
