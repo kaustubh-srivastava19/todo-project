@@ -1,8 +1,8 @@
 require("./setup");
 
 const request = require("supertest");
-const app = require("../app");
 const mongoose = require("mongoose");
+const app = require("../app");
 
 const agent = request.agent(app);
 
@@ -21,13 +21,14 @@ beforeEach(async () => {
 
 });
 
-afterAll(async () => {
+
+
+describe("Todo APIs", () => {
+  afterAll(async () => {
   if (mongoose.connection.readyState !== 0) {
     await mongoose.connection.close();
   }
 });
-
-describe("Todo APIs", () => {
 
   test("Create todo", async () => {
     const res = await agent
