@@ -8,8 +8,7 @@ const morgan = require("morgan");
 
 const logger = require("./utils/logger");
 const requestId = require("./middleware/requestId");
-const { createRateLimiter } = require("./middleware/rateLimiter");
-
+const rateLimiter = require("./middleware/rateLimiter");
 const app = express();
 const Sentry = require("@sentry/node");
 
@@ -55,6 +54,7 @@ app.use(
 // Body parser
 app.use(express.json());
 
+app.use(rateLimiter);
 // Cookies
 app.use(cookieParser());
 
@@ -77,12 +77,6 @@ app.get("/error-test", (req, res) => {
   throw new Error("Sentry test error ");
 });
 
-// ✅ RATE LIMITING
-const apiLimiter = createRateLimiter({
-  windowMs: 60 * 1000,
-  max: 100,
-});
-app.use("/api", apiLimiter);
 
 // ✅ STATIC FILES
 app.use(express.static(path.join(__dirname, "../public")));

@@ -3,7 +3,6 @@ const router = express.Router();
 
 const { signup, login, logout } = require("../controllers/authController");
 
-const { authLimiter } = require("../middleware/rateLimiter");
 
 const {
   signupValidation,
@@ -21,7 +20,6 @@ router.post(
 
 router.post(
   "/login",
-  authLimiter,
   loginValidation,
   validate,
   login

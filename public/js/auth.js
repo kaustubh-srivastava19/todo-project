@@ -1,3 +1,5 @@
+console.log("auth.js loaded");
+
 let isLogin = true;
 
 // ===============================
@@ -13,77 +15,111 @@ window.toggleAuth = function () {
   if (isLogin) {
     heading.innerText = "Login";
     button.innerText = "Login";
-    toggleText.innerHTML =
-      `Don't have an account?
-       <button onclick="toggleAuth()">Sign up</button>`;
+
+    toggleText.innerHTML = `
+      Don't have an account?
+      <button type="button" class="switch-btn" id="toggleBtn">
+        Sign up
+      </button>
+    `;
   } else {
     heading.innerText = "Sign Up";
     button.innerText = "Sign Up";
-    toggleText.innerHTML =
-      `Already have an account?
-       <button onclick="toggleAuth()">Login</button>`;
+
+    toggleText.innerHTML = `
+      Already have an account?
+      <button type="button" class="switch-btn" id="toggleBtn">
+        Login
+      </button>
+    `;
   }
+
+  // Re-bind event after innerHTML replacement
+  document
+    .getElementById("toggleBtn")
+    .addEventListener("click", toggleAuth);
 };
 
+// ===============================
 // VALIDATION HELPERS
+// ===============================
 function isValidEmail(email) {
-  // simple but effective email regex
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function isValidPassword(password) {
-  // min 12 chars (as per your backend)
   return password.length >= 12;
-}// HANDLE AUTH
+}
+
+// ===============================
+// HANDLE AUTH
+// ===============================
 window.handleAuth = async function () {
+  console.log("handleAuth called");
+
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
-  
+
   if (!email || !password) {
-    return alert("Email and password are required");
+    alert("Email and password are required");
+    return;
   }
 
   if (!isValidEmail(email)) {
-    return alert("Please enter a valid email address");
+    alert("Please enter a valid email");
+    return;
   }
 
   if (!isLogin && !isValidPassword(password)) {
-    return alert("Password must be at least 12 characters long");
+    alert("Password must be at least 12 characters");
+    return;
   }
 
-  // ===============================
-  // API CALL
-  // ===============================
-  const url = isLogin ? "/api/login" : "/api/signup";
+  const url = isLogin
+    ? "/api/auth/login"
+    : "/api/auth/signup";
 
   try {
     const res = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       credentials: "include",
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({
+        email,
+        password,
+      }),
     });
 
     const data = await res.json();
 
-    if (!res.ok) {
-      const message =
-        data?.errors?.[0]?.msg ||
-        data?.message ||
-        "Authentication failed";
+    console.log("API response:", data);
 
-      return alert(message);
+    if (!res.ok) {
+      alert(data.message || "Authentication failed");
+      return;
     }
 
     if (isLogin) {
-      window.location.href = "index.html";
+      window.location.href = "/";
     } else {
-      alert("Account created successfully. Please login.");
+      alert("Signup successful. Please login.");
       toggleAuth();
     }
 
   } catch (err) {
     console.error("Auth error:", err);
-    alert("Something went wrong. Please try again.");
+    alert("Something went wrong");
   }
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+  const authButton = document.getElementById("authButton");
+
+  authButton.addEventListener("click", handleAuth);
+
+ document
+    .getElementById("toggleBtn")
+    .addEventListener("click", toggleAuth);
+});
