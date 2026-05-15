@@ -86,7 +86,7 @@ exports.login = async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, config.jwt.secret);
 
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, { httpOnly: true, secure: true, sameSite: "none" });
     setCsrfToken(req, res, () => {});
 
     logger.info("Login success", {

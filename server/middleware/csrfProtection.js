@@ -11,9 +11,9 @@ const setCsrfToken = (req, res, next) => {
   const token = generateToken();
 
   res.cookie("csrfToken", token, {
-    httpOnly: false,
-    sameSite: "strict",
-    secure: false,
+    httpOnly: true,
+    sameSite: "none",
+    secure: true,
   });
 
   next();
