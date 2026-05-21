@@ -77,7 +77,6 @@ app.get("/debug-sentry", (req, res) => {
   throw new Error("Sentry test error");
 });
 
-app.use(Sentry.Handlers.requestHandler());
 
 // ✅ STATIC FILES
 app.use(express.static(path.join(__dirname, "../public")));
@@ -86,9 +85,6 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/todos", require("./routes/todoRoutes"));
 
-
-
-app.use(Sentry.Handlers.errorHandler());
 // ✅ 404 HANDLER
 app.use((req, res) => {
   logger.warn("Route not found", {
