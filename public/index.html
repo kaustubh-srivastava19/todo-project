@@ -1,50 +1,57 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>To-Do App</title>
-    <link rel="stylesheet" href="/css/style.css" />
-  </head>
-  <body>
-    <div class="app">
-      <!-- Sidebar -->
-      <aside class="sidebar">
-        <h2 class="logo">MyTodo</h2>
+<head>
+  <meta charset="UTF-8">
+  <title>To-Do App</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
 
-        <nav>
-          <ul id="menu">
-            <button id="add-btn" onclick="createTodo()" aria-label="Add todo">Add</button>
-           <button onclick="filterTodos('all')">All</button>
-           <button onclick="filterTodos('completed')">Completed</button>
-           <button onclick="filterTodos('pending')">Pending</button>
-           <button onclick="filterTodos('today')">Today</button>
-           <button onclick="filterTodos('upcoming')">Upcoming</button>
-          </ul>
-        </nav>
+<div class="app">
 
-        <button class="logout-btn" onclick="logout()">Logout</button>
-      </aside>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h2 class="logo">MyTodo</h2>
 
-      <!-- Main Content -->
-      <main class="content">
-        <div class="inbox-container">
-          <h1 id="pageTitle">Inbox</h1>
+    <ul class="menu">
+      <li><button data-filter="all">All Tasks</button></li>
+      <li><button data-filter="completed">Completed</button></li>
+      <li><button data-filter="pending">Pending</button></li>
+      <li><button data-filter="today">Today</button></li>
+    </ul>
 
-          <div id="addTaskSection">
-            <input 
-  id="todo-input" 
-  type="text" 
-  placeholder="Enter todo" 
-  aria-label="Todo input field"/>
-            <input type="date" id="dueDate" />
-            <button onclick="addTodo()">Add</button>
-          </div>
+    <button id="logout-btn" class="logout-btn">Logout</button>
+  </aside>
 
-          <ul id="todoList"></ul>
-        </div>
-      </main>
+  <!-- Main -->
+  <main class="content">
+    <div class="inbox-container">
+
+      <h1 id="pageTitle">Inbox</h1>
+
+      <div id="addTaskSection">
+        <input
+          id="todo-input"
+          type="text"
+          placeholder="Enter task..."
+        />
+
+        <input
+          type="date"
+          id="dueDate"
+        />
+
+        <button id="add-btn">Add</button>
+      </div>
+
+      <ul id="todo-list"></ul>
+
     </div>
+  </main>
 
-    <script src="/js/todo.js"></script>
-  </body>
+</div>
+
+<script src="/js/todo.js"></script>
+
+</body>
 </html>

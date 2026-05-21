@@ -1,44 +1,61 @@
 let allTodos = [];
 
-// ERROR HANDLING UI
+/* ================= ERROR ================= */
+
 function showError(message) {
   let errorDiv = document.getElementById("error-message");
 
   if (!errorDiv) {
     errorDiv = document.createElement("div");
     errorDiv.id = "error-message";
-    errorDiv.style.color = "red";
-    errorDiv.style.margin = "10px";
-    document.body.prepend(errorDiv);
+    errorDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ef4444;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      z-index: 999;
+      font-size: 14px;
+    `;
+    document.body.appendChild(errorDiv);
   }
 
-  errorDiv.innerText = message;
+  errorDiv.textContent = message;
 
   setTimeout(() => {
-    errorDiv.innerText = "";
+    errorDiv.textContent = "";
   }, 3000);
 }
 
-// API WRAPPER 
+/* ================= API ================= */
+
 async function apiFetch(url, options = {}) {
   try {
+    const csrfToken =
+      document.cookie
+        .split("; ")
+        .find(row => row.startsWith("csrfToken="))
+        ?.split("=")[1] || "";
+
+    console.log("csrf token:", csrfToken);
+
     const res = await fetch(url, {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
+        "x-csrf-token": csrfToken,
         ...(options.headers || {}),
       },
       ...options,
     });
 
-    // ✅ Session expired
     if (res.status === 401) {
-      showError("Session expired. Redirecting to login...");
-      
+      showError("Session expired");
       setTimeout(() => {
         window.location.href = "/auth.html";
       }, 1000);
-
       return null;
     }
 
@@ -52,87 +69,78 @@ async function apiFetch(url, options = {}) {
     return data;
 
   } catch (err) {
-    showError("Network error. Check your connection.");
+    showError("Network error");
     return null;
   }
 }
-// LOAD TODOS
+
+/* ================= LOAD ================= */
+
 async function loadTodos() {
   const result = await apiFetch("/api/todos");
+
   if (!result) return;
 
-  allTodos = result.data;
+  allTodos = result.data || [];
   renderTodos(allTodos);
 }
-// RENDER TODOS
+
+/* ================= RENDER ================= */
+
 function renderTodos(todos) {
   const list = document.getElementById("todo-list");
+
+  if (!list) return;
+
   list.innerHTML = "";
+
+  if (todos.length === 0) {
+    list.innerHTML = `<p style="color:#666;">No tasks found</p>`;
+    return;
+  }
 
   todos.forEach((todo) => {
     const li = document.createElement("li");
+    li.className = "todo-item";
 
-    // Make item focusable
-    li.setAttribute("tabindex", "0");
+    const text = document.createElement("span");
+    text.textContent = todo.text;
+    if (todo.completed) text.classList.add("completed");
 
-    const textSpan = document.createElement("span");
-    textSpan.textContent = todo.text;
-    textSpan.style.textDecoration = todo.completed ? "line-through" : "none";
+    const actions = document.createElement("div");
 
-    // Toggle button
     const toggleBtn = document.createElement("button");
-    toggleBtn.textContent = "✔";
-    toggleBtn.setAttribute("aria-label", "Mark todo as complete");
-    toggleBtn.className = "toggleBtn";
+    toggleBtn.innerText = todo.completed ? "↩" : "✔";
+    toggleBtn.className = "edit-btn";
+    toggleBtn.onclick = () => toggleTodo(todo._id);
 
-    toggleBtn.onclick = () => toggleTodo(todo._id, toggleBtn);
-
-    // Keyboard support
-    toggleBtn.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        toggleTodo(todo._id, toggleBtn);
-      }
-    });
-
-    // Delete button
     const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "🗑";
-    deleteBtn.setAttribute("aria-label", "Delete todo");
-    deleteBtn.className = "deleteBtn";
+    deleteBtn.innerText = "🗑";
+    deleteBtn.className = "delete-btn";
+    deleteBtn.onclick = () => deleteTodo(todo._id);
 
-    deleteBtn.onclick = () => deleteTodo(todo._id, deleteBtn);
+    actions.append(toggleBtn, deleteBtn);
 
-    // Keyboard support
-    deleteBtn.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        deleteTodo(todo._id, deleteBtn);
-      }
-    });
-
-    li.appendChild(textSpan);
-    li.appendChild(toggleBtn);
-    li.appendChild(deleteBtn);
+    li.append(text, actions);
 
     list.appendChild(li);
   });
 }
 
-// CREATE TODO
+/* ================= CREATE ================= */
+
 async function createTodo() {
   const input = document.getElementById("todo-input");
-  const submitBtn = document.getElementById("add-btn");
+
+  if (!input) return;
+
   const text = input.value.trim();
 
   if (!text) {
-    showError("Todo text required");
+    showError("Enter task");
     return;
   }
-  submitBtn.disabled = true;
-  const originalText = submitBtn.textContent;
-  submitBtn.textContent = "Saving...";
-   try {
+
   const result = await apiFetch("/api/todos", {
     method: "POST",
     body: JSON.stringify({ text }),
@@ -142,18 +150,11 @@ async function createTodo() {
 
   input.value = "";
   loadTodos();
-} finally {
-    // ✅ Always reset
-    submitBtn.disabled = false;
-    submitBtn.textContent = originalText;
-  }
 }
-// DELETE TODO
-async function deleteTodo(id, btn) {
-  btn.disabled = true;
-  const originalText = btn.textContent;
-  btn.textContent = "Deleting...";
-  try {
+
+/* ================= DELETE ================= */
+
+async function deleteTodo(id) {
   const result = await apiFetch(`/api/todos/${id}`, {
     method: "DELETE",
   });
@@ -161,16 +162,11 @@ async function deleteTodo(id, btn) {
   if (!result) return;
 
   loadTodos();
-}  finally {
-    btn.disabled = false;
-    btn.textContent = originalText;
-  }
 }
-// TOGGLE TODO
-async function toggleTodo(id, btn) {
-    btn.disabled = true;
 
-  try {
+/* ================= TOGGLE ================= */
+
+async function toggleTodo(id) {
   const result = await apiFetch(`/api/todos/${id}/toggle`, {
     method: "PATCH",
   });
@@ -178,42 +174,55 @@ async function toggleTodo(id, btn) {
   if (!result) return;
 
   loadTodos();
-}  finally {
-    btn.disabled = false;
+}
+
+/* ================= FILTER ================= */
+
+function filterTodos(type) {
+  if (type === "all") return renderTodos(allTodos);
+
+  if (type === "completed") {
+    return renderTodos(allTodos.filter((t) => t.completed));
+  }
+
+  if (type === "pending") {
+    return renderTodos(allTodos.filter((t) => !t.completed));
+  }
+
+  const today = new Date().toDateString();
+
+  if (type === "today") {
+    return renderTodos(
+      allTodos.filter((t) =>
+        t.dueDate &&
+        new Date(t.dueDate).toDateString() === today
+      )
+    );
   }
 }
 
-// UPDATE TODO
-async function updateTodo(id, newText) {
-  const result = await apiFetch(`/api/todos/${id}`, {
-    method: "PUT",
-    body: JSON.stringify({ text: newText }),
-  });
+/* ================= INIT ================= */
 
-  if (!result) return;
-
+document.addEventListener("DOMContentLoaded", () => {
   loadTodos();
-}
 
-// FILTER TODOS (LOCAL FILTERING)
-function filterTodos(type) {
-  const now = new Date();
+  document.getElementById("add-btn")?.addEventListener("click", createTodo);
 
-  const filtered = allTodos.filter((todo) => {
-    if (type === "completed") return todo.completed;
-
-    if (type === "pending") return !todo.completed;
-
-    if (type === "today") {
-      if (!todo.dueDate) return false;
-      const due = new Date(todo.dueDate);
-      return due.toDateString() === now.toDateString();
-    }
-
-    return true; // all
+  document.getElementById("todo-input")?.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") createTodo();
   });
 
-  renderTodos(filtered);
-}
-// INIT
-document.addEventListener("DOMContentLoaded", loadTodos);
+  document.querySelectorAll("[data-filter]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      filterTodos(btn.dataset.filter);
+    });
+  });
+
+  document.getElementById("logout-btn")?.addEventListener("click", async () => {
+    await apiFetch("/api/auth/logout", {
+      method: "POST",
+    });
+
+    window.location.href = "/auth.html";
+  });
+});

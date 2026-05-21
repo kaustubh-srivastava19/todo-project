@@ -1,121 +1,93 @@
-/* ================= GLOBAL RESET ================= */
+/* ================= GLOBAL ================= */
 
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
 }
 
 body {
-  background: #f4f6f8;
-  height: 100vh;
+  background: #f4f7fb;
+  color: #1f2937;
 }
 
-/* ================= APP LAYOUT ================= */
+/* ================= APP ================= */
 
 .app {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 /* ================= SIDEBAR ================= */
 
 .sidebar {
-  width: 240px;
-  background: #ffffff;
-  border-right: 1px solid #e5e7eb;
-  padding: 25px 20px;
+  width: 250px;
+  background: #111827;
+  color: white;
+  padding: 30px 20px;
 }
 
 .sidebar h2 {
-  margin-bottom: 25px;
+  font-size: 28px;
+  margin-bottom: 30px;
+  color: white;
 }
 
 .sidebar ul {
   list-style: none;
-  padding: 0;
 }
 
 .sidebar li {
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: 0.2s;
+  margin-bottom: 12px;
 }
 
-.sidebar li:hover {
-  background: #eef2ff;
+.sidebar button {
+  width: 100%;
+  background: #1f2937;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 15px;
+}
+
+.sidebar button:hover {
+  background: #374151;
 }
 
 .logout-btn {
-  margin-top: 20px;
-  background: none;
-  border: none;
-  color: red;
-  cursor: pointer;
-}
-
-.link-btn {
-  background: none;
-  border: none;
-  color: #1a73e8;
-  cursor: pointer;
-  font-size: 14px;
-  padding: 0;
-}
-
-.link-btn:hover {
-  text-decoration: underline;
-}
-
-.switch-btn {
-  background-color: #1a73e8;
+  margin-top: 25px;
+  width: 100%;
+  background: #dc2626;
   color: white;
   border: none;
-  padding: 4px 10px;
-  font-size: 13px;
-  border-radius: 4px;
+  padding: 12px;
+  border-radius: 8px;
   cursor: pointer;
-  margin-left: 6px;
 }
 
-.switch-btn:hover {
-  background-color: #1558c0;
-}
-
-/* ================= MAIN CONTENT ================= */
-
-button {
-  background-color: #222;
-  color: #fff;
-  border: none;
-  padding: 6px 10px;
-}
-
-button:focus {
-  outline: 2px solid #00aaff;
-}
+/* ================= MAIN ================= */
 
 .content {
   flex: 1;
-  padding: 40px 60px;
-  background: #f9fafb;
+  padding: 50px;
 }
 
 .inbox-container {
-  max-width: 700px;
+  max-width: 800px;
 }
-
-/* ================= TITLE ================= */
 
 #pageTitle {
-  font-size: 28px;
+  font-size: 34px;
   margin-bottom: 25px;
+  font-weight: 700;
 }
 
-/* ================= ADD TASK ================= */
+/* ================= TASK INPUT ================= */
 
 #addTaskSection {
   display: flex;
@@ -123,153 +95,141 @@ button:focus {
   margin-bottom: 30px;
 }
 
+#taskInput,
+#dueDate {
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
 #taskInput {
   flex: 1;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  font-size: 14px;
 }
 
 #addTaskSection button {
-  padding: 12px 20px;
-  border-radius: 8px;
-  border: none;
-  background: #4f46e5;
+  background: #2563eb;
   color: white;
-  font-weight: 500;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: 0.2s;
+  font-weight: 600;
 }
 
 #addTaskSection button:hover {
-  background: #4338ca;
+  background: #1d4ed8;
 }
 
-/* ================= TODO LIST ================= */
+/* ================= TASK LIST ================= */
 
 #todoList {
   list-style: none;
 }
 
 .todo-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   background: white;
-  padding: 14px 16px;
-  margin-bottom: 12px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  transition: 0.2s;
-}
-
-.todo-item:hover {
-  transform: translateY(-2px);
+  margin-bottom: 15px;
+  padding: 18px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
 }
 
 .todo-item span {
-  flex: 1;
   font-size: 15px;
+  flex: 1;
 }
 
-/* Completed Style */
 .completed {
   text-decoration: line-through;
-  color: gray;
+  opacity: 0.6;
 }
 
-/* Buttons inside todo */
+/* ================= ACTION BUTTONS ================= */
+
 .edit-btn {
-  margin-right: 12px;
-  background: #eef2ff;
+  background: #f3f4f6;
   border: none;
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-right: 8px;
   cursor: pointer;
 }
 
 .delete-btn {
-  background: none;
+  background: #fee2e2;
+  color: #dc2626;
   border: none;
-  color: red;
-  font-size: 16px;
+  padding: 8px 12px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
-.delete-btn:hover {
-  transform: scale(1.1);
-}
-
-/* ================= AUTH PAGES ================= */
+/* ================= AUTH ================= */
 
 .auth-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .auth-card {
+  width: 380px;
   background: white;
   padding: 35px;
-  width: 320px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
 .auth-card h2 {
+  text-align: center;
   margin-bottom: 20px;
 }
 
 .auth-card input {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   margin-bottom: 15px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
 }
 
 .auth-card button {
   width: 100%;
-  padding: 10px;
-  border-radius: 6px;
+  padding: 12px;
   border: none;
-  background: #007bff;
+  border-radius: 10px;
+  background: #2563eb;
   color: white;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
 }
 
 .auth-card button:hover {
-  background: #0056b3;
-}
-
-.toggle-text {
-  margin-top: 15px;
-  font-size: 14px;
-}
-
-.toggle-text span {
-  color: #007bff;
-  cursor: pointer;
-  font-weight: bold;
+  background: #1d4ed8;
 }
 
 /* ================= RESPONSIVE ================= */
 
-@media (max-width: 768px) {
+@media(max-width: 768px) {
   .app {
     flex-direction: column;
   }
 
   .sidebar {
     width: 100%;
-    border-right: none;
-    border-bottom: 1px solid #e5e7eb;
   }
 
   .content {
     padding: 20px;
+  }
+
+  #addTaskSection {
+    flex-direction: column;
   }
 }

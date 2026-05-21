@@ -6,7 +6,8 @@
     "test": "jest --runInBand",
     "test:coverage": "jest --coverage",
     "dev": "cross-env NODE_ENV=development nodemon server/index.js",
-    "start": "NODE_ENV=production node server/index.js",
+    "start": "node server/index.js",
+    "start:prod": "cross-env NODE_ENV=production node server/index.js",
     "lint": "eslint .",
     "format": "prettier --write .",
     "test:watch": "jest --watch"
@@ -16,7 +17,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@sentry/node": "^10.51.0",
+    "@sentry/node": "^10.53.1",
     "bcryptjs": "^3.0.3",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",

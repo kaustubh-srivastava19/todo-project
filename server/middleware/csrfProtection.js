@@ -11,10 +11,10 @@ const setCsrfToken = (req, res, next) => {
   const token = generateToken();
 
   res.cookie("csrfToken", token, {
-    httpOnly: true,
-    sameSite: "none",
-    secure: true,
-  });
+  httpOnly: false,
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  secure: process.env.NODE_ENV === "production",
+});
 
   next();
 };
