@@ -1,24 +1,26 @@
 const winston = require("winston");
+const { Logtail } = require("@logtail/node");
+const { LogtailTransport } = require("@logtail/winston");
+
+const transports = [
+  new winston.transports.Console(),
+];
+
+if (process.env.LOGTAIL_TOKEN) {
+  const logtail = new Logtail(process.env.LOGTAIL_TOKEN);
+
+  transports.push(
+    new LogtailTransport(logtail)
+  );
+}
 
 const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || "info",
-
-  levels: {
-    error: 0,
-    warn: 1,
-    info: 2,
-    http: 3,   
-    debug: 4,
-  },
-
+  level: "info",
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.json()
   ),
-
-  transports: [
-    new winston.transports.Console()
-  ],
+  transports,
 });
 
 module.exports = logger;

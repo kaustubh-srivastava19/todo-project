@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -50,6 +51,16 @@ app.use(
     credentials: true,
   })
 );
+
+//Request logging middleware
+app.use((req, res, next) => {
+  logger.info({
+    method: req.method,
+    url: req.originalUrl,
+  });
+
+  next();
+});
 
 // Body parser
 app.use(express.json());

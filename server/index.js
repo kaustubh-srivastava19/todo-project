@@ -1,4 +1,5 @@
 const Sentry = require("@sentry/node");
+const logger = require("./utils/logger");
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -26,4 +27,8 @@ connectDB();
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
+
+  logger.info("Server started successfully");
+  logger.error("Test error log");
+  console.log("LOGGER EXECUTED");
 });

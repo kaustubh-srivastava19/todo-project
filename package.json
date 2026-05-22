@@ -17,6 +17,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@logtail/node": "^0.5.8",
+    "@logtail/winston": "^0.5.8",
     "@sentry/node": "^10.53.1",
     "bcryptjs": "^3.0.3",
     "compression": "^1.8.1",
