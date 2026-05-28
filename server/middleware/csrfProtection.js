@@ -20,7 +20,7 @@ const setCsrfToken = (req, res, next) => {
 };
 
 const verifyCsrf = (req, res, next) => {
-  // ✅ Skip CSRF check in tests
+  // To Skip CSRF check in tests
   if (process.env.NODE_ENV === "test") {
     return next();
   }
