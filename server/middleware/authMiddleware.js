@@ -2,8 +2,9 @@ const jwt = require("jsonwebtoken");
 const config = require("../config/config");
 const { isBlocked } = require("../utils/tokenBlocklist");
 const logger = require("../utils/logger");
+const User = require("../models/User");
 
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
   const token = req.cookies.token;
 
   if (!token) {
@@ -21,10 +22,22 @@ const auth = (req, res, next) => {
     return res.status(401).json({ message: "Token invalidated" });
   }
 
-  try {
-    const decoded = jwt.verify(token, config.jwt.secret);
-    req.userId = decoded.id;
-    next();
+ try {
+  const decoded = jwt.verify(token, config.jwt.secret);
+
+  const user = await User.findById(decoded.id)
+    .select("-password");
+
+  if (!user) {
+    return res.status(401).json({
+      message: "User not found"
+    });
+  }
+
+  req.userId = user._id;
+  req.user = user;
+
+  next();
 
   } catch (err) {
     logger.warn("Invalid token", {

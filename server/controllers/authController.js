@@ -1,7 +1,6 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { validationResult } = require("express-validator");
 const config = require("../config/config");
 const { addToBlocklist } = require("../utils/tokenBlocklist");
 const { setCsrfToken } = require("../middleware/csrfProtection");
@@ -10,19 +9,6 @@ const logger = require("../utils/logger");
 // SIGNUP
 exports.signup = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      logger.warn("Signup validation failed", {
-        requestId: req.id,
-      });
-
-      return res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: errors.array(),
-      });
-    }
-
     const { email, password } = req.body;
 
     logger.info("Signup attempt", { requestId: req.id, email });
@@ -112,6 +98,22 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.getCurrentUser = async (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+      data: {
+        email: req.user.email,
+        name: req.user.name || ""
+      }
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Unable to fetch profile"
+    });
+  }
+};
 // LOGOUT
 exports.logout = (req, res) => {
   const token = req.cookies.token;
@@ -125,5 +127,16 @@ exports.logout = (req, res) => {
   res.json({
     success: true,
     data: { message: "Logged out successfully" },
+  });
+};
+
+// CHECK AUTH STATUS
+exports.checkAuth = (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      authenticated: true,
+      userId: req.userId,
+    },
   });
 };

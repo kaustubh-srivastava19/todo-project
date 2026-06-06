@@ -18,14 +18,16 @@ const {
   updateTodoValidation,
 } = require("../validators/todoValidator");
 
+const validate = require("../middleware/validate");
+
 // GET
 router.get("/", auth,  getTodos);
 
 // VALIDATION
-router.post("/", auth,  verifyCsrf, createTodoValidation, createTodo);
+router.post("/", auth,  verifyCsrf, createTodoValidation, validate, createTodo);
 
 // UPDATE
-router.put("/:id", auth, verifyCsrf,updateTodoValidation, updateTodo);
+router.put("/:id", auth, verifyCsrf, updateTodoValidation, validate, updateTodo);
 
 // TOGGLE
 router.patch("/:id/toggle", auth, verifyCsrf,toggleTodo);

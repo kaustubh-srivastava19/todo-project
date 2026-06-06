@@ -95,7 +95,7 @@ body {
   margin-bottom: 30px;
 }
 
-#taskInput,
+#todo-input,
 #dueDate {
   padding: 12px;
   border: 1px solid #d1d5db;
@@ -103,7 +103,7 @@ body {
   font-size: 15px;
 }
 
-#taskInput {
+#todo-input {
   flex: 1;
 }
 
@@ -123,10 +123,53 @@ body {
 
 /* ================= TASK LIST ================= */
 
-#todoList {
+#todo-list {
   list-style: none;
 }
 
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-container {
+  position: relative;
+}
+
+.profile-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.profile-menu {
+  position: absolute;
+  right: 0;
+  top: 55px;
+  z-index: 9999;
+
+  min-width: 220px;
+
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+
+.hidden {
+  display: none;
+}
 .todo-item {
   background: white;
   margin-bottom: 15px;
@@ -212,6 +255,13 @@ body {
 
 .auth-card button:hover {
   background: #1d4ed8;
+}
+
+.sidebar-btn.active {
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+  border-left: 4px solid white;
 }
 
 /* ================= RESPONSIVE ================= */

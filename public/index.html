@@ -14,10 +14,21 @@
     <h2 class="logo">MyTodo</h2>
 
     <ul class="menu">
-      <li><button data-filter="all">All Tasks</button></li>
-      <li><button data-filter="completed">Completed</button></li>
-      <li><button data-filter="pending">Pending</button></li>
-      <li><button data-filter="today">Today</button></li>
+      <button class="sidebar-btn active" data-filter="all">
+  All Tasks
+</button>
+
+<button class="sidebar-btn" data-filter="completed">
+  Completed
+</button>
+
+<button class="sidebar-btn" data-filter="pending">
+  Pending
+</button>
+
+<button class="sidebar-btn" data-filter="today">
+  Today
+</button>
     </ul>
 
     <button id="logout-btn" class="logout-btn">Logout</button>
@@ -25,29 +36,50 @@
 
   <!-- Main -->
   <main class="content">
-    <div class="inbox-container">
 
-      <h1 id="pageTitle">Inbox</h1>
+  <div class="topbar">
+    <h1 id="pageTitle">Inbox</h1>
 
-      <div id="addTaskSection">
-        <input
-          id="todo-input"
-          type="text"
-          placeholder="Enter task..."
-        />
+    <div class="profile-container">
 
-        <input
-          type="date"
-          id="dueDate"
-        />
+      <div id="profileBadge" class="profile-badge"></div>
 
-        <button id="add-btn">Add</button>
+      <div id="profileMenu" class="profile-menu hidden">
+        <p id="profileName"></p>
+        <p id="profileEmail"></p>
       </div>
 
-      <ul id="todo-list"></ul>
-
     </div>
-  </main>
+  </div>
+
+  <div class="inbox-container">
+
+    <div id="addTaskSection">
+      ...
+    </div>
+
+    <ul id="todo-list"></ul>
+
+  </div>
+
+</main>
+</div>
+
+<div class="topbar">
+
+  <h1>Inbox</h1>
+   <div class="profile-container">
+
+  <div id="profileBadge" class="profile-badge"></div>
+    <div class="profile-text">
+   <div id="user-name"></div>
+  </div>
+
+    <div id="profileMenu" class="profile-menu hidden">
+      <p id="profileName"></p>
+      <p id="profileEmail"></p>
+    </div>
+  </div>
 </div>
 
 <script src="/js/todo.js"></script>

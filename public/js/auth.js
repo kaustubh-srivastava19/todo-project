@@ -102,7 +102,7 @@ window.handleAuth = async function () {
     }
 
     if (isLogin) {
-      window.location.href = "/";
+      window.location.replace("/");
     } else {
       alert("Signup successful. Please login.");
       toggleAuth();
@@ -114,7 +114,26 @@ window.handleAuth = async function () {
   }
 };
 
+async function checkSession() {
+  try {
+    const res = await fetch("/api/auth/check", {
+      method: "GET",
+      credentials: "include",
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.data && data.data.authenticated) {
+        window.location.replace("/");
+      }
+    }
+  } catch (err) {
+    console.error("Check session error:", err);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  checkSession();
+
   const authButton = document.getElementById("authButton");
 
   authButton.addEventListener("click", handleAuth);

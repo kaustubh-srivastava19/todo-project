@@ -48,5 +48,33 @@ describe("Auth APIs", () => {
     expect(res.headers["set-cookie"]).toBeDefined();
   });
 
+  test("Check auth - unauthenticated", async () => {
+    const res = await request(app).get("/api/auth/check");
+    expect(res.statusCode).toBe(401);
+  });
+
+  test("Check auth - authenticated", async () => {
+    const email = `check-${Date.now()}@test.com`;
+    await request(app).post("/api/auth/signup").send({
+      email,
+      password: "Password@123"
+    });
+
+    const loginRes = await request(app).post("/api/auth/login").send({
+      email,
+      password: "Password@123"
+    });
+
+    const cookie = loginRes.headers["set-cookie"];
+    expect(cookie).toBeDefined();
+
+    const res = await request(app)
+      .get("/api/auth/check")
+      .set("Cookie", cookie);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.authenticated).toBe(true);
+  });
 
 });

@@ -88,6 +88,20 @@ app.get("/debug-sentry", (req, res) => {
   throw new Error("Sentry test error");
 });
 
+// Prevent html files caching
+app.use((req, res, next) => {
+  if (req.path.endsWith(".html")) {
+    res.setHeader(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate"
+    );
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+  }
+
+  next();
+});
+
 
 // ✅ STATIC FILES
 app.use(express.static(path.join(__dirname, "../public")));

@@ -29,6 +29,52 @@ function showError(message) {
   }, 3000);
 }
 
+async function loadProfile() {
+  try {
+    const result = await apiFetch("/api/auth/me");
+
+    console.log("Profile response:", result);
+
+    if (!result) {
+      showError("Unable to fetch profile");
+      return;
+    }
+
+    const user = result.data;
+
+    document.getElementById("profileBadge").textContent =
+      getInitials(user.name || user.email);
+
+    document.getElementById("profileName").textContent =
+  user.name || "User";
+
+     document.getElementById("profileEmail").textContent =
+  user.email;
+
+  } catch (err) {
+    console.error(err);
+    showError("Unable to fetch profile");
+  }
+}
+  function getInitials(value) {
+  if (!value) return "?";
+
+  // Email case
+  if (value.includes("@")) {
+    return value.substring(0, 2).toUpperCase();
+  }
+
+  const words = value.trim().split(" ");
+
+  if (words.length === 1) {
+    return words[0][0].toUpperCase();
+  }
+
+  return (
+    words[0][0] +
+    words[words.length - 1][0]
+  ).toUpperCase();
+}
 /* ================= API ================= */
 
 async function apiFetch(url, options = {}) {
@@ -54,7 +100,7 @@ async function apiFetch(url, options = {}) {
     if (res.status === 401) {
       showError("Session expired");
       setTimeout(() => {
-        window.location.href = "/auth.html";
+        window.location.replace("/auth.html");
       }, 1000);
       return null;
     }
@@ -205,7 +251,15 @@ function filterTodos(type) {
 
 document.addEventListener("DOMContentLoaded", () => {
   loadTodos();
+  loadProfile(); 
 
+  document.getElementById("profileBadge")
+    ?.addEventListener("click", () => {
+
+      document
+        .getElementById("profileMenu")
+        .classList.toggle("hidden");
+    });
   document.getElementById("add-btn")?.addEventListener("click", createTodo);
 
   document.getElementById("todo-input")?.addEventListener("keypress", (e) => {
@@ -213,16 +267,23 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.querySelectorAll("[data-filter]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      filterTodos(btn.dataset.filter);
-    });
+  btn.addEventListener("click", () => {
+
+    document
+      .querySelectorAll("[data-filter]")
+      .forEach(b => b.classList.remove("active"));
+
+    btn.classList.add("active");
+
+    filterTodos(btn.dataset.filter);
   });
+});
 
   document.getElementById("logout-btn")?.addEventListener("click", async () => {
     await apiFetch("/api/auth/logout", {
       method: "POST",
     });
 
-    window.location.href = "/auth.html";
+    window.location.replace("/auth.html");
   });
 });

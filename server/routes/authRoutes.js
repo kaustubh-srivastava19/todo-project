@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
 
-const { signup, login, logout } = require("../controllers/authController");
-
+const { signup, login, logout, checkAuth } = require("../controllers/authController");
+const auth = require("../middleware/authMiddleware");
+const { getCurrentUser } = require("../controllers/authController");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const {
   signupValidation,
@@ -10,6 +12,7 @@ const {
 } = require("../validators/authValidator");
 
 const validate = require("../middleware/validate");
+
 
 router.post(
   "/signup",
@@ -26,5 +29,13 @@ router.post(
 );
 
 router.post("/logout", logout);
+
+router.get("/check", auth, checkAuth);
+
+router.get(
+  "/me",
+  authMiddleware,
+  getCurrentUser
+);
 
 module.exports = router;
