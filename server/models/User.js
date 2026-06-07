@@ -3,6 +3,20 @@ const uniqueValidator = require("mongoose-unique-validator");
 
 const userSchema = new mongoose.Schema(
   {
+    firstName: {
+      type: String,
+      required: true,
+      trim: true,
+      default: "",
+    },
+
+    lastName: {
+      type: String,
+      required: true,
+      trim: true,
+      default: "",
+    },
+
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -18,10 +32,11 @@ const userSchema = new mongoose.Schema(
       minlength: [12, "Password must be at least 12 characters"],
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 userSchema.plugin(uniqueValidator, {
   message: "Email already exists",
 });
+
 module.exports = mongoose.model("User", userSchema);

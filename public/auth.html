@@ -1,31 +1,95 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Auth</title>
-    <link rel="stylesheet" href="/css/style.css" />
-  </head>
-  <body>
-    <div class="auth-container">
-      <div class="auth-card">
-        <h2>Login</h2>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Authentication</title>
 
-        <input id="email" type="email" placeholder="Email" />
-        <input id="password" type="password" placeholder="Password" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
 
-        <button type="button" id="authButton">
-        Login
-        </button>
+<div class="auth-container">
 
-        <p id="toggleText">
-          Don't have an account?
-          <button type="button" class="switch-btn" id="toggleBtn">
-          Sign up
-          </button>
-        </p>
-      </div>
+  <div class="auth-card">
+
+    <!-- SIGNUP FORM -->
+    <div id="signup-form">
+
+      <h2>Create Account</h2>
+
+      <input
+        type="text"
+        id="signup-firstname"
+        placeholder="First Name"
+      />
+
+      <input
+        type="text"
+        id="signup-lastname"
+        placeholder="Last Name"
+      />
+
+      <input
+        type="email"
+        id="signup-email"
+        placeholder="Email"
+      />
+
+      <input
+        type="password"
+        id="signup-password"
+        placeholder="Password"
+      />
+
+      <button id="signup-btn">
+        Sign Up
+      </button>
+
+      <p style="margin-top:15px; text-align:center;">
+        Already have an account?
+        <a href="#" id="show-login">
+          Login
+        </a>
+      </p>
+
     </div>
 
-    <script src="./js/auth.js"></script>
-  </body>
+    <!-- LOGIN FORM -->
+    <div id="login-form" style="display:none;">
+
+      <h2>Login</h2>
+
+      <input
+        type="email"
+        id="login-email"
+        placeholder="Email"
+      />
+
+      <input
+        type="password"
+        id="login-password"
+        placeholder="Password"
+      />
+
+      <button id="login-btn">
+        Login
+      </button>
+
+      <p style="margin-top:15px; text-align:center;">
+        Don't have an account?
+        <a href="#" id="show-signup">
+          Sign Up
+        </a>
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script src="/js/auth.js"></script>
+
+</body>
 </html>

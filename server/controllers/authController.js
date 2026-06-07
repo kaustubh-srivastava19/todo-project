@@ -9,7 +9,7 @@ const logger = require("../utils/logger");
 // SIGNUP
 exports.signup = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { firstName, lastName, email, password } = req.body;
 
     logger.info("Signup attempt", { requestId: req.id, email });
 
@@ -22,7 +22,7 @@ exports.signup = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ email, password: hashedPassword });
+    const user = await User.create({ firstName, lastName,email, password: hashedPassword });
 
     logger.info("User created", {
       requestId: req.id,
@@ -104,7 +104,8 @@ exports.getCurrentUser = async (req, res) => {
       success: true,
       data: {
         email: req.user.email,
-        name: req.user.name || ""
+        firstName: req.user.firstName || "",
+        lastName: req.user.lastName || ""
       }
     });
   } catch (err) {

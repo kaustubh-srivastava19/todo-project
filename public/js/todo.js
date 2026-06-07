@@ -40,13 +40,16 @@ async function loadProfile() {
       return;
     }
 
-    const user = result.data;
+   const user = result.data;
 
-    document.getElementById("profileBadge").textContent =
-      getInitials(user.name || user.email);
+const fullName =
+  `${user.firstName || ""} ${user.lastName || ""}`.trim();
 
-    document.getElementById("profileName").textContent =
-  user.name || "User";
+document.getElementById("profileBadge").textContent =
+  getInitials(fullName || user.email);
+
+document.getElementById("profileName").textContent =
+  fullName || "User";
 
      document.getElementById("profileEmail").textContent =
   user.email;
@@ -141,7 +144,16 @@ function renderTodos(todos) {
   list.innerHTML = "";
 
   if (todos.length === 0) {
-    list.innerHTML = `<p style="color:#666;">No tasks found</p>`;
+    list.innerHTML = `
+<div style="
+text-align:center;
+padding:60px 20px;
+color:#6b7280;
+">
+  <h3>No tasks yet</h3>
+  <p>Create your first task above.</p>
+</div>
+`;
     return;
   }
 

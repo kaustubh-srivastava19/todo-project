@@ -1,45 +1,5 @@
 console.log("auth.js loaded");
 
-let isLogin = true;
-
-// ===============================
-// TOGGLE LOGIN / SIGNUP UI
-// ===============================
-window.toggleAuth = function () {
-  isLogin = !isLogin;
-
-  const heading = document.querySelector("h2");
-  const button = document.getElementById("authButton");
-  const toggleText = document.getElementById("toggleText");
-
-  if (isLogin) {
-    heading.innerText = "Login";
-    button.innerText = "Login";
-
-    toggleText.innerHTML = `
-      Don't have an account?
-      <button type="button" class="switch-btn" id="toggleBtn">
-        Sign up
-      </button>
-    `;
-  } else {
-    heading.innerText = "Sign Up";
-    button.innerText = "Sign Up";
-
-    toggleText.innerHTML = `
-      Already have an account?
-      <button type="button" class="switch-btn" id="toggleBtn">
-        Login
-      </button>
-    `;
-  }
-
-  // Re-bind event after innerHTML replacement
-  document
-    .getElementById("toggleBtn")
-    .addEventListener("click", toggleAuth);
-};
-
 // ===============================
 // VALIDATION HELPERS
 // ===============================
@@ -52,35 +12,91 @@ function isValidPassword(password) {
 }
 
 // ===============================
-// HANDLE AUTH
+// SIGNUP
 // ===============================
-window.handleAuth = async function () {
-  console.log("handleAuth called");
-
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-
-  if (!email || !password) {
-    alert("Email and password are required");
-    return;
-  }
-
-  if (!isValidEmail(email)) {
-    alert("Please enter a valid email");
-    return;
-  }
-
-  if (!isLogin && !isValidPassword(password)) {
-    alert("Password must be at least 12 characters");
-    return;
-  }
-
-  const url = isLogin
-    ? "/api/auth/login"
-    : "/api/auth/signup";
-
+async function handleSignup() {
   try {
-    const res = await fetch(url, {
+    const firstName =
+      document.getElementById("signup-firstname").value.trim();
+
+    const lastName =
+      document.getElementById("signup-lastname").value.trim();
+
+    const email =
+      document.getElementById("signup-email").value.trim();
+
+    const password =
+      document.getElementById("signup-password").value.trim();
+
+    if (!firstName || !lastName || !email || !password) {
+      alert("All fields are required");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      alert("Please enter a valid email");
+      return;
+    }
+
+    if (!isValidPassword(password)) {
+      alert("Password must be at least 12 characters");
+      return;
+    }
+
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        password,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Signup failed");
+      return;
+    }
+
+    alert("Signup successful. Please login.");
+
+    document.getElementById("signup-form").style.display = "none";
+    document.getElementById("login-form").style.display = "block";
+
+  } catch (err) {
+    console.error("Signup error:", err);
+    alert("Something went wrong");
+  }
+}
+
+// ===============================
+// LOGIN
+// ===============================
+async function handleLogin() {
+  try {
+    const email =
+      document.getElementById("login-email").value.trim();
+
+    const password =
+      document.getElementById("login-password").value.trim();
+
+    if (!email || !password) {
+      alert("Email and password are required");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      alert("Please enter a valid email");
+      return;
+    }
+
+    const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -94,51 +110,77 @@ window.handleAuth = async function () {
 
     const data = await res.json();
 
-    console.log("API response:", data);
-
     if (!res.ok) {
-      alert(data.message || "Authentication failed");
+      alert(data.message || "Login failed");
       return;
     }
 
-    if (isLogin) {
-      window.location.replace("/");
-    } else {
-      alert("Signup successful. Please login.");
-      toggleAuth();
-    }
+    window.location.replace("/");
 
   } catch (err) {
-    console.error("Auth error:", err);
+    console.error("Login error:", err);
     alert("Something went wrong");
   }
-};
+}
 
+// ===============================
+// CHECK SESSION
+// ===============================
 async function checkSession() {
   try {
     const res = await fetch("/api/auth/check", {
       method: "GET",
       credentials: "include",
     });
+
     if (res.ok) {
       const data = await res.json();
-      if (data.success && data.data && data.data.authenticated) {
+
+      if (
+        data.success &&
+        data.data &&
+        data.data.authenticated
+      ) {
         window.location.replace("/");
       }
     }
+
   } catch (err) {
     console.error("Check session error:", err);
   }
 }
 
+// ===============================
+// INIT
+// ===============================
 document.addEventListener("DOMContentLoaded", () => {
+
   checkSession();
 
-  const authButton = document.getElementById("authButton");
+  document
+    .getElementById("signup-btn")
+    ?.addEventListener("click", handleSignup);
 
-  authButton.addEventListener("click", handleAuth);
+  document
+    .getElementById("login-btn")
+    ?.addEventListener("click", handleLogin);
 
- document
-    .getElementById("toggleBtn")
-    .addEventListener("click", toggleAuth);
+  document
+    .getElementById("show-login")
+    ?.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      document.getElementById("signup-form").style.display = "none";
+      document.getElementById("login-form").style.display = "block";
+    });
+
+  document
+    .getElementById("show-signup")
+    ?.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      document.getElementById("login-form").style.display = "none";
+      document.getElementById("signup-form").style.display = "block";
+    });
+
 });
