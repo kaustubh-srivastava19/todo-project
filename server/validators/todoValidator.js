@@ -11,6 +11,11 @@ exports.createTodoValidation = [
     .escape(), // prevents XSS
 
   body("dueDate").optional().isISO8601().withMessage("Invalid date format"),
+
+  body("priority")
+    .optional()
+    .isIn(["low", "medium", "high"])
+    .withMessage("Invalid priority level"),
 ];
 
 // UPDATE TODO VALIDATION
@@ -22,4 +27,11 @@ exports.updateTodoValidation = [
     .isLength({ max: 200 })
     .withMessage("Text too long")
     .escape(),
+
+  body("dueDate").optional().isISO8601().withMessage("Invalid date format"),
+
+  body("priority")
+    .optional()
+    .isIn(["low", "medium", "high"])
+    .withMessage("Invalid priority level"),
 ];

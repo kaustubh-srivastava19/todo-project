@@ -14,21 +14,10 @@
     <h2 class="logo">MyTodo</h2>
 
     <ul class="menu">
-      <button class="sidebar-btn active" data-filter="all">
-  All Tasks
-</button>
-
-<button class="sidebar-btn" data-filter="completed">
-  Completed
-</button>
-
-<button class="sidebar-btn" data-filter="pending">
-  Pending
-</button>
-
-<button class="sidebar-btn" data-filter="today">
-  Today
-</button>
+      <button class="sidebar-btn active" data-filter="all">📋 All Tasks</button>
+      <button class="sidebar-btn" data-filter="completed">✅ Completed</button>
+      <button class="sidebar-btn" data-filter="pending">⏳ Pending</button>
+      <button class="sidebar-btn" data-filter="today">📆 Today</button>
     </ul>
 
     <button id="logout-btn" class="logout-btn">Logout</button>
@@ -39,16 +28,20 @@
 
   <div class="topbar">
     <h1 id="pageTitle">Inbox</h1>
+    <div id="taskStats" class="task-stats"></div>
 
-    <div class="profile-container">
+    <div class="topbar-actions">
+      <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span class="icon">☀️</span>
+      </button>
 
-      <div id="profileBadge" class="profile-badge"></div>
-
-      <div id="profileMenu" class="profile-menu hidden">
-        <p id="profileName"></p>
-        <p id="profileEmail"></p>
+      <div class="profile-container">
+        <div id="profileBadge" class="profile-badge"></div>
+        <div id="profileMenu" class="profile-menu hidden">
+          <p id="profileName"></p>
+          <p id="profileEmail"></p>
+        </div>
       </div>
-
     </div>
   </div>
 
@@ -56,15 +49,37 @@
 
     <div id="addTaskSection">
 
-  <input
-    type="text"
-    id="todo-input"
-    placeholder="✍️ Add a new task..."
-  />
+  <div class="add-task-row">
+    <input
+      type="text"
+      id="todo-input"
+      placeholder="✍️ Add a new task..."
+    />
 
-  <button id="add-btn">
-    Add
-  </button>
+    <button id="add-btn">
+      Add
+    </button>
+  </div>
+
+  <div class="add-task-meta">
+    <div class="date-picker-wrapper">
+      <span class="meta-icon">📅</span>
+      <input
+        type="date"
+        id="dueDate-input"
+        title="Set due date"
+      />
+    </div>
+
+    <div class="priority-selector">
+      <span class="meta-icon">🚩</span>
+      <select id="priority-input" title="Set priority">
+        <option value="medium">🟡 Medium</option>
+        <option value="high">🔴 High</option>
+        <option value="low">🔵 Low</option>
+      </select>
+    </div>
+  </div>
 
 </div>
 

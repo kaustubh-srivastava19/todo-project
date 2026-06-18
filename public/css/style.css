@@ -1,3 +1,39 @@
+/* ================= VARIABLES ================= */
+:root {
+  --bg-body: #f4f7fb;
+  --bg-sidebar: #111827;
+  --bg-sidebar-btn: #1f2937;
+  --bg-sidebar-btn-hover: #374151;
+  --bg-content: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-btn-hover: #f3f4f6;
+  --color-text: #1f2937;
+  --color-text-sidebar: #ffffff;
+  --border-color: #d1d5db;
+  --shadow-color: rgba(0, 0, 0, 0.06);
+  --shadow-color-menu: rgba(0, 0, 0, 0.15);
+  --bg-btn-gray: #f3f4f6;
+  --color-btn-gray: #1f2937;
+  --input-bg: #ffffff;
+}
+
+body.dark-theme {
+  --bg-body: #0b0f19;
+  --bg-sidebar: #0f172a;
+  --bg-sidebar-btn: #1e293b;
+  --bg-sidebar-btn-hover: #334155;
+  --bg-content: #0f172a;
+  --bg-card: #1e293b;
+  --bg-btn-hover: #334155;
+  --color-text: #f3f4f6;
+  --border-color: #334155;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --shadow-color-menu: rgba(0, 0, 0, 0.5);
+  --bg-btn-gray: #334155;
+  --color-btn-gray: #f3f4f6;
+  --input-bg: #1e293b;
+}
+
 /* ================= GLOBAL ================= */
 
 * {
@@ -8,8 +44,9 @@
 }
 
 body {
-  background: #f4f7fb;
-  color: #1f2937;
+  background: var(--bg-body);
+  color: var(--color-text);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* ================= APP ================= */
@@ -23,9 +60,10 @@ body {
 
 .sidebar {
   width: 250px;
-  background: #111827;
-  color: white;
+  background: var(--bg-sidebar);
+  color: var(--color-text-sidebar);
   padding: 30px 20px;
+  transition: background 0.3s ease;
 }
 
 .sidebar h2 {
@@ -44,19 +82,19 @@ body {
 
 .sidebar button {
   width: 100%;
-  background: #1f2937;
+  background: var(--bg-sidebar-btn);
   color: white;
   border: none;
   padding: 12px;
   border-radius: 8px;
   text-align: left;
   cursor: pointer;
-  transition: 0.2s;
+  transition: background 0.2s;
   font-size: 15px;
 }
 
 .sidebar button:hover {
-  background: #374151;
+  background: var(--bg-sidebar-btn-hover);
 }
 
 .logout-btn {
@@ -75,7 +113,8 @@ body {
 .content {
   flex: 1;
   padding: 40px 60px;
-  background: #f8fafc;
+  background: var(--bg-content);
+  transition: background 0.3s ease;
 }
 
 .inbox-container {
@@ -92,23 +131,82 @@ body {
 
 #addTaskSection {
   display: flex;
-  gap: 12px;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 30px;
+}
+
+.add-task-row {
+  display: flex;
+  gap: 12px;
+}
+
+.add-task-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.date-picker-wrapper,
+.priority-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 6px 12px;
+  transition: border-color 0.2s ease, background 0.3s ease;
+}
+
+.date-picker-wrapper:focus-within,
+.priority-selector:focus-within {
+  border-color: #2563eb;
+}
+
+.meta-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+#dueDate-input,
+#priority-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--color-text);
+  cursor: pointer;
+  font-family: "Segoe UI", sans-serif;
+}
+
+#dueDate-input::-webkit-calendar-picker-indicator {
+  opacity: 0.5;
+  cursor: pointer;
+  filter: var(--date-picker-filter, none);
+}
+
+body.dark-theme #dueDate-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
 }
 
 #todo-input,
 #dueDate {
   padding: 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   font-size: 15px;
+  background: var(--input-bg);
+  color: var(--color-text);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 #todo-input {
   flex: 1;
-  background: white;
+  background: var(--input-bg);
   padding: 15px;
   font-size: 16px;
+  color: var(--color-text);
 }
 
 #addTaskSection button {
@@ -126,16 +224,143 @@ body {
   background: #1d4ed8;
 }
 
+/* ================= PRIORITY CARDS ================= */
+
+.todo-item.priority-high {
+  border-left: 4px solid #ef4444;
+}
+
+.todo-item.priority-medium {
+  border-left: 4px solid #f59e0b;
+}
+
+.todo-item.priority-low {
+  border-left: 4px solid #3b82f6;
+}
+
+/* ================= DATE BADGE ================= */
+
+.todo-content-col {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.todo-date-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #6b7280;
+  background: var(--bg-btn-gray);
+  padding: 2px 8px;
+  border-radius: 20px;
+  width: fit-content;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.todo-date-badge.overdue {
+  color: #ef4444;
+  background: #fee2e2;
+  font-weight: 600;
+}
+
+body.dark-theme .todo-date-badge.overdue {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+
+
 /* ================= TASK LIST ================= */
 
 #todo-list {
   list-style: none;
 }
 
+/* ── Stats bar ── */
+.task-stats {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 4px;
+  margin-bottom: 20px;
+}
+
+.task-stats .stat-done {
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* ── Empty state ── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.empty-state .empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.empty-state h3 {
+  font-size: 18px;
+  margin-bottom: 6px;
+  color: var(--color-text);
+  opacity: 0.7;
+}
+
+.empty-state p {
+  font-size: 14px;
+}
+
+/* ── Card hover ── */
+.todo-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--shadow-color);
+}
+
+/* ── Actions wrapper ── */
+.todo-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.theme-toggle-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--color-text);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  box-shadow: 0 4px 10px var(--shadow-color);
+  transition: all 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+  transform: rotate(15deg) scale(1.05);
+  background: var(--bg-btn-hover);
 }
 
 .profile-container {
@@ -161,49 +386,92 @@ body {
   right: 0;
   top: 55px;
   z-index: 9999;
-
   min-width: 220px;
-
-  background: white;
+  background: var(--bg-card);
   border-radius: 10px;
   padding: 15px;
-
-  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  box-shadow: 0 4px 12px var(--shadow-color-menu);
+  border: 1px solid var(--border-color);
+  color: var(--color-text);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .hidden {
   display: none;
 }
+
 .todo-item {
-  background: white;
+  background: var(--bg-card);
   margin-bottom: 15px;
   padding: 18px;
   border-radius: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 10px var(--shadow-color);
+  border: 1px solid var(--border-color);
+  color: var(--color-text);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .todo-item span {
   font-size: 15px;
   flex: 1;
+  position: relative;
+  display: inline-block;
+  color: var(--color-text);
+  transition: color 0.4s ease, opacity 0.4s ease;
 }
 
-.completed {
-  text-decoration: line-through;
+.todo-item span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 2px;
+  width: 0;
+  background: #10b981; /* Modern green line */
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(-50%);
+}
+
+.todo-item span.completed {
+  color: #9ca3af;
   opacity: 0.6;
+}
+
+.todo-item span.completed::after {
+  width: 100%;
+}
+
+.todo-item span.completing {
+  color: #9ca3af;
+  opacity: 0.6;
+}
+
+.todo-item span.completing::after {
+  width: 100%;
+}
+
+.todo-item span.uncompleting::after {
+  width: 0;
 }
 
 /* ================= ACTION BUTTONS ================= */
 
 .edit-btn {
-  background: #f3f4f6;
+  background: var(--bg-btn-gray);
+  color: var(--color-btn-gray);
   border: none;
   padding: 8px 12px;
   border-radius: 8px;
   margin-right: 8px;
   cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.edit-btn:hover {
+  background: var(--bg-btn-hover);
 }
 
 .delete-btn {
@@ -226,10 +494,13 @@ body {
 
 .auth-card {
   width: 380px;
-  background: white;
+  background: var(--bg-card);
   padding: 35px;
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 30px var(--shadow-color-menu);
+  border: 1px solid var(--border-color);
+  color: var(--color-text);
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .auth-card h2 {
@@ -242,7 +513,10 @@ body {
   padding: 12px;
   margin-bottom: 15px;
   border-radius: 10px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
+  color: var(--color-text);
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .auth-card button {

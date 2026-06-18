@@ -14,12 +14,13 @@ exports.getTodos = asyncHandler(async (req, res) => {
 
 // CREATE TODO
 exports.createTodo = asyncHandler(async (req, res) => {
-  const { text, dueDate } = req.body;
+  const { text, dueDate, priority } = req.body;
 
   const todo = await Todo.create({
     text,
     user: req.userId,
     dueDate: dueDate || null,
+    priority: priority || "medium",
   });
 
   logger.info("Todo created", {
@@ -55,11 +56,12 @@ exports.deleteTodo = asyncHandler(async (req, res) => {
 
 // UPDATE TODO
 exports.updateTodo = asyncHandler(async (req, res) => {
-  const { text, dueDate } = req.body;
+  const { text, dueDate, priority } = req.body;
 
   const updateFields = {};
   if (text !== undefined) updateFields.text = text;
   if (dueDate !== undefined) updateFields.dueDate = dueDate;
+  if (priority !== undefined) updateFields.priority = priority;
 
   const todo = await Todo.findOneAndUpdate(
     { _id: req.params.id, user: req.userId },
