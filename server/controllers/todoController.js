@@ -36,10 +36,7 @@ exports.createTodo = asyncHandler(async (req, res) => {
 
 // DELETE TODO
 exports.deleteTodo = asyncHandler(async (req, res) => {
-  const todo = await Todo.findOneAndDelete({
-    _id: req.params.id,
-    user: req.userId,
-  });
+  const todo = await Todo.findOneAndDelete({ _id: req.params.id, user: req.userId });
 
   if (!todo) {
     return res.status(404).json({

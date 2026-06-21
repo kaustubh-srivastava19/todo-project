@@ -1,4 +1,7 @@
 let allTodos = [];
+let currentFilter = "all";
+let todoIdToDelete = null;
+let todoTextToDelete = "";
 
 /* ================= TOAST NOTIFICATIONS ================= */
 
@@ -129,13 +132,32 @@ async function apiFetch(url, options = {}) {
 
 /* ================= LOAD ================= */
 
-async function loadTodos() {
+async function loadTodos(filter = currentFilter) {
+  currentFilter = filter || currentFilter;
   const result = await apiFetch("/api/todos");
-
   if (!result) return;
 
   allTodos = result.data || [];
-  renderTodos(allTodos);
+
+  // Apply current filter client-side
+  if (currentFilter === "completed") {
+    return renderTodos(allTodos.filter(t => t.completed));
+  }
+
+  if (currentFilter === "pending") {
+    return renderTodos(allTodos.filter(t => !t.completed));
+  }
+
+  if (currentFilter === "today") {
+    const today = new Date().toDateString();
+    return renderTodos(
+      allTodos.filter(t =>
+        t.dueDate && new Date(t.dueDate).toDateString() === today
+      )
+    );
+  }
+
+  return renderTodos(allTodos);
 }
 
 /* ================= RENDER ================= */
@@ -173,7 +195,44 @@ function renderTodos(todos, filterType = null) {
     return;
   }
 
-  todos.forEach((todo) => {
+  // Sort todos:
+  // 1. Completion status (incomplete tasks first)
+  // 2. Due date existence (tasks with due dates come first)
+  // 3. Due date value (earlier dates first)
+  // 4. Priority (High > Medium > Low)
+  // 5. Addition basis (creation order, oldest first)
+  const sortedTodos = [...todos].sort((a, b) => {
+    if (a.completed !== b.completed) {
+      return a.completed ? 1 : -1;
+    }
+
+    const hasDateA = !!a.dueDate;
+    const hasDateB = !!b.dueDate;
+    if (hasDateA !== hasDateB) {
+      return hasDateA ? -1 : 1;
+    }
+
+    if (hasDateA && hasDateB) {
+      const dateA = new Date(a.dueDate).getTime();
+      const dateB = new Date(b.dueDate).getTime();
+      if (dateA !== dateB) {
+        return dateA - dateB;
+      }
+    }
+
+    const priorityWeight = { high: 3, medium: 2, low: 1 };
+    const weightA = priorityWeight[a.priority] || 2;
+    const weightB = priorityWeight[b.priority] || 2;
+    if (weightA !== weightB) {
+      return weightB - weightA;
+    }
+
+    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return timeA - timeB;
+  });
+
+  sortedTodos.forEach((todo) => {
     const li = document.createElement("li");
     li.className = `todo-item priority-${todo.priority || "medium"}`;
 
@@ -232,21 +291,7 @@ function renderTodos(todos, filterType = null) {
     deleteBtn.className = "delete-btn";
     deleteBtn.title = "Delete task";
     deleteBtn.onclick = () => {
-      if (deleteBtn.dataset.confirm === "true") {
-        deleteTodo(todo._id);
-      } else {
-        deleteBtn.dataset.confirm = "true";
-        deleteBtn.textContent = "Sure?";
-        deleteBtn.style.background = "#dc2626";
-        deleteBtn.style.color = "white";
-        clearTimeout(deleteBtn._confirmTimer);
-        deleteBtn._confirmTimer = setTimeout(() => {
-          deleteBtn.dataset.confirm = "false";
-          deleteBtn.textContent = "🗑";
-          deleteBtn.style.background = "";
-          deleteBtn.style.color = "";
-        }, 2500);
-      }
+      openDeleteModal(todo._id, todo.text);
     };
 
     actions.append(toggleBtn, deleteBtn);
@@ -292,17 +337,40 @@ async function createTodo() {
   loadTodos();
 }
 
-/* ================= DELETE ================= */
+/* ================= DELETE & MODAL FUNCTIONS ================= */
 
-async function deleteTodo(id) {
+function openDeleteModal(id, text) {
+  todoIdToDelete = id;
+  todoTextToDelete = text;
+
+  const modal = document.getElementById("deleteConfirmModal");
+  const taskNameSpan = document.getElementById("deleteTaskName");
+
+  if (modal && taskNameSpan) {
+    taskNameSpan.textContent = text;
+    modal.classList.remove("hidden");
+  }
+}
+
+function closeDeleteModal() {
+  todoIdToDelete = null;
+  todoTextToDelete = "";
+
+  const modal = document.getElementById("deleteConfirmModal");
+  if (modal) {
+    modal.classList.add("hidden");
+  }
+}
+
+async function deleteTodo(id, text) {
   const result = await apiFetch(`/api/todos/${id}`, {
     method: "DELETE",
   });
 
   if (!result) return;
 
-  showToast("Task deleted", "info");
-  loadTodos();
+  showToast(`Task "${text}" deleted successfully.`, "success");
+  loadTodos(currentFilter);
 }
 
 /* ================= TOGGLE ================= */
@@ -314,7 +382,7 @@ async function toggleTodo(id) {
 
   if (!result) return;
 
-  loadTodos();
+  loadTodos(currentFilter);
 }
 
 /* ================= FILTER ================= */
@@ -324,24 +392,8 @@ function filterTodos(type) {
   const titleEl = document.getElementById("pageTitle");
   if (titleEl) titleEl.textContent = FILTER_TITLES[type] || "Inbox";
 
-  if (type === "all") return renderTodos(allTodos);
-
-  if (type === "completed") {
-    return renderTodos(allTodos.filter(t => t.completed));
-  }
-
-  if (type === "pending") {
-    return renderTodos(allTodos.filter(t => !t.completed));
-  }
-
-  if (type === "today") {
-    const today = new Date().toDateString();
-    return renderTodos(
-      allTodos.filter(t =>
-        t.dueDate && new Date(t.dueDate).toDateString() === today
-      )
-    );
-  }
+  currentFilter = type;
+  return loadTodos(type);
 }
 
 /* ================= INIT ================= */
@@ -423,5 +475,24 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("logout-btn")?.addEventListener("click", async () => {
     await apiFetch("/api/auth/logout", { method: "POST" });
     window.location.replace("/auth.html");
+  });
+
+  // ── Delete modal events ──
+  document.getElementById("cancelDeleteBtn")?.addEventListener("click", closeDeleteModal);
+  
+  document.getElementById("confirmDeleteBtn")?.addEventListener("click", async () => {
+    if (todoIdToDelete) {
+      const id = todoIdToDelete;
+      const text = todoTextToDelete;
+      closeDeleteModal();
+      await deleteTodo(id, text);
+    }
+  });
+
+  // Close modal when clicking on overlay background
+  document.getElementById("deleteConfirmModal")?.addEventListener("click", (e) => {
+    if (e.target.id === "deleteConfirmModal") {
+      closeDeleteModal();
+    }
   });
 });

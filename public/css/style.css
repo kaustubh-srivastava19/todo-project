@@ -561,3 +561,144 @@ body.dark-theme .todo-date-badge.overdue {
     flex-direction: column;
   }
 }
+
+/* ================= DELETE MODAL ================= */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+body.dark-theme .modal-overlay {
+  background: rgba(11, 15, 25, 0.6);
+}
+
+.modal-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  width: 90%;
+  max-width: 440px;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  padding: 24px;
+  transform: translateY(0) scale(1);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: modal-appear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes modal-appear {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-overlay.hidden {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.warning-icon {
+  font-size: 24px;
+}
+
+.modal-body {
+  margin-bottom: 24px;
+}
+
+.modal-body p {
+  font-size: 15px;
+  color: var(--color-text);
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.modal-body #deleteTaskName {
+  font-weight: 600;
+  color: #dc2626;
+}
+
+body.dark-theme .modal-body #deleteTaskName {
+  color: #f87171;
+}
+
+.modal-subtext {
+  font-size: 13px !important;
+  color: #6b7280;
+  margin-top: 8px;
+  opacity: 0.75;
+}
+
+body.dark-theme .modal-subtext {
+  color: #9ca3af;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.modal-footer button {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+  border: none;
+  outline: none;
+}
+
+.modal-footer button:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: var(--bg-btn-gray);
+  color: var(--color-btn-gray);
+  border: 1px solid var(--border-color) !important;
+}
+
+.btn-secondary:hover {
+  background: var(--bg-btn-hover);
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}

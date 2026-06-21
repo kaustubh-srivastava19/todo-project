@@ -30,10 +30,12 @@ const todoSchema = new mongoose.Schema(
       enum: ["low", "medium", "high"],
       default: "medium",
     },
+    
   },
   { timestamps: true },
 );
 
+todoSchema.index({ user: 1 });
 todoSchema.index({ user: 1, completed: 1 });
 todoSchema.index({ user: 1, dueDate: 1 });
 

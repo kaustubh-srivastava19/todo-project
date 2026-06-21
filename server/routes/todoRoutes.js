@@ -10,7 +10,7 @@ const {
   deleteTodo,
   updateTodo,
   toggleTodo,
-} = require("../controllers/todoController");
+  } = require("../controllers/todoController");
 
 // ✅ Importing Validators
 const {
@@ -34,5 +34,7 @@ router.patch("/:id/toggle", auth, verifyCsrf,toggleTodo);
 
 // DELETE
 router.delete("/:id", auth, verifyCsrf,deleteTodo);
+
+// (Trash/restore routes removed)
 
 module.exports = router;

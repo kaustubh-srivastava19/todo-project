@@ -87,6 +87,24 @@
 
   </div>
 
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteConfirmModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="warning-icon">⚠️</span>
+        <h3 id="deleteModalTitle">Delete Task</h3>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete the task "<span id="deleteTaskName"></span>"?</p>
+        <p id="deleteModalSubtext" class="modal-subtext">This action can be undone by administrators if needed.</p>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelDeleteBtn" class="btn-secondary">Cancel</button>
+        <button id="confirmDeleteBtn" class="btn-danger">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+
 </main>
 </div>
 
