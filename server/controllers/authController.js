@@ -22,7 +22,7 @@ exports.signup = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ firstName, lastName,email, password: hashedPassword });
+    const user = await User.create({ firstName, lastName, email, password: hashedPassword });
 
     logger.info("User created", {
       requestId: req.id,
@@ -73,7 +73,7 @@ exports.login = async (req, res) => {
     const token = jwt.sign({ id: user._id }, config.jwt.secret);
 
     res.cookie("token", token, { httpOnly: true, secure: true, sameSite: "none" });
-    setCsrfToken(req, res, () => {});
+    setCsrfToken(req, res, () => { });
 
     logger.info("Login success", {
       requestId: req.id,

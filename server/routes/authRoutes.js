@@ -33,7 +33,7 @@ router.post("/logout", logout);
 router.get("/check", auth, checkAuth);
 
 router.get(
-  "/me",
+  "/profile",
   authMiddleware,
   getCurrentUser
 );

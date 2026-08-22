@@ -4,35 +4,36 @@ const request = require("supertest");
 const mongoose = require("mongoose");
 const app = require("../app");
 
-const agent = request.agent(app);
+let cookie = null;
 
 beforeEach(async () => {
-  // Signup
-  await agent.post("/api/auth/signup").send({
-    email: "user@test.com",
+  const email = `testuser${Date.now()}@example.com`;
+  const signupRes = await request(app).post("/api/auth/signup").send({
+    firstName: "Test",
+    lastName: "User",
+    email,
     password: "Password@123",
   });
 
-  // Login
-  const res = await agent.post("/api/auth/login").send({
-    email: "user@test.com",
+  const loginRes = await request(app).post("/api/auth/login").send({
+    email,
     password: "Password@123",
   });
 
+  cookie = loginRes.headers["set-cookie"];
 });
-
-
 
 describe("Todo APIs", () => {
   afterAll(async () => {
-  if (mongoose.connection.readyState !== 0) {
-    await mongoose.connection.close();
-  }
-});
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.connection.close();
+    }
+  });
 
   test("Create todo", async () => {
-    const res = await agent
+    const res = await request(app)
       .post("/api/todos")
+      .set("Cookie", cookie)
       .send({ text: "Test Todo" });
 
     expect(res.statusCode).toBe(201);
@@ -43,5 +44,4 @@ describe("Todo APIs", () => {
 
     expect(res.statusCode).toBe(401);
   });
-
 });

@@ -10,7 +10,8 @@ const {
   deleteTodo,
   updateTodo,
   toggleTodo,
-  } = require("../controllers/todoController");
+  reorderTodos,
+} = require("../controllers/todoController");
 
 // ✅ Importing Validators
 const {
@@ -21,20 +22,21 @@ const {
 const validate = require("../middleware/validate");
 
 // GET
-router.get("/", auth,  getTodos);
+router.get("/", auth, getTodos);
 
-// VALIDATION
-router.post("/", auth,  verifyCsrf, createTodoValidation, validate, createTodo);
+// REORDER (must be defined before /:todoId to avoid route collision)
+router.put("/reorder", auth, verifyCsrf, reorderTodos);
+
+// CREATE
+router.post("/", auth, verifyCsrf, createTodoValidation, validate, createTodo);
 
 // UPDATE
-router.put("/:id", auth, verifyCsrf, updateTodoValidation, validate, updateTodo);
+router.put("/:todoId", auth, verifyCsrf, updateTodoValidation, validate, updateTodo);
 
 // TOGGLE
-router.patch("/:id/toggle", auth, verifyCsrf,toggleTodo);
+router.patch("/:todoId", auth, verifyCsrf, toggleTodo);
 
 // DELETE
-router.delete("/:id", auth, verifyCsrf,deleteTodo);
-
-// (Trash/restore routes removed)
+router.delete("/:todoId", auth, verifyCsrf, deleteTodo);
 
 module.exports = router;

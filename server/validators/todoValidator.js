@@ -16,6 +16,36 @@ exports.createTodoValidation = [
     .optional()
     .isIn(["low", "medium", "high"])
     .withMessage("Invalid priority level"),
+
+  body("project")
+    .optional({ checkFalsy: true })
+    .isMongoId()
+    .withMessage("Invalid project ID format"),
+
+  body("sectionId")
+    .optional({ checkFalsy: true })
+    .isMongoId()
+    .withMessage("Invalid section ID format"),
+
+  body("description")
+    .optional({ nullable: true })
+    .isString()
+    .withMessage("Description must be a string"),
+
+  body("recurrence")
+    .optional()
+    .isIn(["none", "daily", "weekly", "monthly"])
+    .withMessage("Invalid recurrence value"),
+
+  body("reminderDate")
+    .optional()
+    .isISO8601()
+    .withMessage("Invalid reminder date format"),
+
+  body("subtasks")
+    .optional()
+    .isArray()
+    .withMessage("Subtasks must be an array"),
 ];
 
 // UPDATE TODO VALIDATION
@@ -34,4 +64,34 @@ exports.updateTodoValidation = [
     .optional()
     .isIn(["low", "medium", "high"])
     .withMessage("Invalid priority level"),
+
+  body("project")
+    .optional({ checkFalsy: true })
+    .isMongoId()
+    .withMessage("Invalid project ID format"),
+
+  body("sectionId")
+    .optional({ checkFalsy: true })
+    .isMongoId()
+    .withMessage("Invalid section ID format"),
+
+  body("description")
+    .optional({ nullable: true })
+    .isString()
+    .withMessage("Description must be a string"),
+
+  body("recurrence")
+    .optional()
+    .isIn(["none", "daily", "weekly", "monthly"])
+    .withMessage("Invalid recurrence value"),
+
+  body("reminderDate")
+    .optional()
+    .isISO8601()
+    .withMessage("Invalid reminder date format"),
+
+  body("subtasks")
+    .optional()
+    .isArray()
+    .withMessage("Subtasks must be an array"),
 ];

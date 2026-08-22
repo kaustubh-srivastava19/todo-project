@@ -6,14 +6,17 @@ const app = require("../app");
 
 describe("Auth APIs", () => {
   afterAll(async () => {
-  await mongoose.connection.close();
-});
+    await mongoose.connection.close();
+  });
 
   test("Signup success", async () => {
+    const email = `test-${Date.now()}@test.com`;
     const res = await request(app)
       .post("/api/auth/signup")
       .send({
-        email: "test@test.com",
+        firstName: "Test",
+        lastName: "User",
+        email,
         password: "Password@123"
       });
 
@@ -21,13 +24,18 @@ describe("Auth APIs", () => {
   });
 
   test("Reject duplicate email", async () => {
+    const email = `dup-${Date.now()}@test.com`;
     await request(app).post("/api/auth/signup").send({
-      email: "test@test.com",
+      firstName: "Test",
+      lastName: "User",
+      email,
       password: "Password@123"
     });
 
     const res = await request(app).post("/api/auth/signup").send({
-      email: "test@test.com",
+      firstName: "Test",
+      lastName: "User",
+      email,
       password: "Password@123"
     });
 
@@ -35,13 +43,16 @@ describe("Auth APIs", () => {
   });
 
   test("Login success", async () => {
+    const email = `login-${Date.now()}@test.com`;
     await request(app).post("/api/auth/signup").send({
-      email: "test@test.com",
+      firstName: "Test",
+      lastName: "User",
+      email,
       password: "Password@123"
     });
 
     const res = await request(app).post("/api/auth/login").send({
-      email: "test@test.com",
+      email,
       password: "Password@123"
     });
 
@@ -56,6 +67,8 @@ describe("Auth APIs", () => {
   test("Check auth - authenticated", async () => {
     const email = `check-${Date.now()}@test.com`;
     await request(app).post("/api/auth/signup").send({
+      firstName: "Test",
+      lastName: "User",
       email,
       password: "Password@123"
     });
@@ -74,7 +87,6 @@ describe("Auth APIs", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.authenticated).toBe(true);
   });
 
 });

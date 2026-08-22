@@ -1,114 +1,392 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>To-Do App</title>
   <link rel="stylesheet" href="/css/style.css">
+  <!-- SortableJS for drag-and-drop -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 </head>
+
 <body>
 
-<div class="app">
+  <div class="app">
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <h2 class="logo">MyTodo</h2>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2 class="logo">MyTodo</h2>
 
-    <ul class="menu">
-      <button class="sidebar-btn active" data-filter="all">📋 All Tasks</button>
-      <button class="sidebar-btn" data-filter="completed">✅ Completed</button>
-      <button class="sidebar-btn" data-filter="pending">⏳ Pending</button>
-      <button class="sidebar-btn" data-filter="today">📆 Today</button>
-    </ul>
+      <ul class="menu">
+        <button id="searchSidebarBtn" class="sidebar-btn search-trigger-btn">
+          <span>🔍 Search</span>
+          <span class="sidebar-shortcut-badge">Ctrl K</span>
+        </button>
+        <button class="sidebar-btn active" data-filter="all">📋 All Tasks</button>
+        <button class="sidebar-btn" data-filter="completed">✅ Completed</button>
+        <button class="sidebar-btn" data-filter="pending">⏳ Pending</button>
+        <button class="sidebar-btn" data-filter="today">📆 Today</button>
+        <button class="sidebar-btn" data-filter="upcoming">⏳ Upcoming</button>
+        <button class="sidebar-btn" data-filter="filters">🏷️ Filters & Labels</button>
+      </ul>
 
-    <button id="logout-btn" class="logout-btn">Logout</button>
-  </aside>
+      <!-- Favorites Section -->
+      <div class="projects-sidebar-section favorites-section hidden" id="favoritesSidebarSection">
+        <div class="sidebar-header">
+          <span>Favorites</span>
+        </div>
+        <ul id="favoritesList" class="projects-list"></ul>
+      </div>
 
-  <!-- Main -->
-  <main class="content">
+      <div class="projects-sidebar-section">
+        <div class="sidebar-header">
+          <span>My Projects</span>
+          <button id="addProjectSidebarBtn" class="add-project-btn-icon" title="Add Project">+</button>
+        </div>
+        <ul id="projectsList" class="projects-list"></ul>
+      </div>
 
-  <div class="topbar">
-    <h1 id="pageTitle">Inbox</h1>
-    <div id="taskStats" class="task-stats"></div>
+      <!-- Archived Projects Section (collapsible) -->
+      <div class="projects-sidebar-section archived-section hidden" id="archivedSidebarSection">
+        <div class="sidebar-header archived-header" id="archivedToggleHeader" title="Click to expand/collapse">
+          <span>🗃️ Archived</span>
+          <span id="archivedChevron" class="archived-chevron">▶</span>
+        </div>
+        <ul id="archivedList" class="projects-list hidden"></ul>
+      </div>
 
-    <div class="topbar-actions">
-      <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle Theme">
-        <span class="icon">☀️</span>
-      </button>
+      <button id="logout-btn" class="logout-btn">Logout</button>
+    </aside>
 
-      <div class="profile-container">
-        <div id="profileBadge" class="profile-badge"></div>
-        <div id="profileMenu" class="profile-menu hidden">
-          <p id="profileName"></p>
-          <p id="profileEmail"></p>
+    <!-- Main -->
+    <main class="content">
+
+      <div class="topbar">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <button id="sidebarToggleBtn" class="sidebar-toggle-btn" title="Toggle sidebar" aria-label="Toggle sidebar">
+            &#9776;
+          </button>
+          <h1 id="pageTitle">Inbox</h1>
+        </div>
+        <div id="taskStats" class="task-stats"></div>
+
+        <div class="topbar-actions">
+          <!-- Display Menu Dropdown -->
+          <div class="display-menu-wrapper">
+            <button id="displayMenuBtn" class="display-btn" title="Display Options">
+              <span>📑 Display</span>
+            </button>
+            <div id="displayDropdown" class="display-dropdown hidden">
+              <div class="display-group">
+                <label class="display-label">View</label>
+                <div class="display-toggle-buttons">
+                  <button id="viewListBtn" class="display-toggle-btn active">List</button>
+                  <button id="viewBoardBtn" class="display-toggle-btn">Board</button>
+                </div>
+              </div>
+              <div class="display-group">
+                <label class="display-label">Sort By</label>
+                <select id="sortBySelect" class="display-select">
+                  <option value="default">Default Order</option>
+                  <option value="dueDate">Due Date</option>
+                  <option value="priority">Priority</option>
+                  <option value="title">Title (A-Z)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="notif-btn-wrapper">
+            <button id="notifBtn" class="notif-btn" title="Notifications" aria-label="Notifications">🔔</button>
+            <span id="notifBadge" class="notif-badge hidden">0</span>
+          </div>
+
+          <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle Theme">
+            <span class="icon">☀️</span>
+          </button>
+
+          <div class="profile-container">
+            <div id="profileBadge" class="profile-badge"></div>
+            <div id="profileMenu" class="profile-menu hidden">
+              <p id="profileName"></p>
+              <p id="profileEmail"></p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <div class="inbox-container">
+      <div class="inbox-container">
 
-    <div id="addTaskSection">
+        <div id="addTaskSection">
 
-  <div class="add-task-row">
-    <input
-      type="text"
-      id="todo-input"
-      placeholder="✍️ Add a new task..."
-    />
+          <div class="add-task-row">
+            <input type="text" id="todo-input" placeholder="✍️ Add a new task... (e.g. 'Submit report tomorrow p1 #frontend')" autocomplete="off" />
 
-    <button id="add-btn">
-      Add
-    </button>
-  </div>
+            <button id="add-btn">Add</button>
+          </div>
 
-  <div class="add-task-meta">
-    <div class="date-picker-wrapper">
-      <span class="meta-icon">📅</span>
-      <input
-        type="date"
-        id="dueDate-input"
-        title="Set due date"
-      />
-    </div>
+          <!-- NLP Live Detection Bar -->
+          <div id="nlpPreviewBar" class="nlp-preview-bar hidden">
+            <span class="nlp-preview-label">⚡ Auto-Detected:</span>
+            <div id="nlpChipsContainer" class="nlp-chips-container"></div>
+          </div>
 
-    <div class="priority-selector">
-      <span class="meta-icon">🚩</span>
-      <select id="priority-input" title="Set priority">
-        <option value="medium">🟡 Medium</option>
-        <option value="high">🔴 High</option>
-        <option value="low">🔵 Low</option>
-      </select>
-    </div>
-  </div>
+          <div class="add-task-meta">
 
-</div>
+            <div class="date-picker-wrapper">
+              <span class="meta-icon">📅</span>
+              <input type="date" id="dueDate-input" title="Set due date" />
+            </div>
 
-    <ul id="todo-list"></ul>
+            <div class="priority-selector">
+              <span class="meta-icon">🚩</span>
+              <select id="priority-input" title="Set priority">
+                <option value="medium">🟡 Medium</option>
+                <option value="high">🔴 High</option>
+                <option value="low">🔵 Low</option>
+              </select>
+            </div>
 
-  </div>
+            <div class="recurrence-selector">
+              <span class="meta-icon">🔁</span>
+              <select id="recurrence-input" title="Set recurrence">
+                <option value="none">No repeat</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
 
-  <!-- Delete Confirmation Modal -->
-  <div id="deleteConfirmModal" class="modal-overlay hidden">
-    <div class="modal-card">
-      <div class="modal-header">
-        <span class="warning-icon">⚠️</span>
-        <h3 id="deleteModalTitle">Delete Task</h3>
+          </div>
+
+        </div>
+
+        <ul id="todo-list"></ul>
+        <div id="boardViewContainer" class="board-view-container hidden"></div>
+        <div id="filtersView" class="filters-view hidden"></div>
+        <div id="pagination-controls" class="pagination-controls"></div>
+
       </div>
-      <div class="modal-body">
-        <p>Are you sure you want to delete the task "<span id="deleteTaskName"></span>"?</p>
-        <p id="deleteModalSubtext" class="modal-subtext">This action can be undone by administrators if needed.</p>
+      <!-- Delete Confirmation Modal -->
+      <div id="deleteConfirmModal" class="modal-overlay hidden">
+        <div class="modal-card">
+          <div class="modal-header">
+            <span class="warning-icon">⚠️</span>
+            <h3 id="deleteModalTitle">Delete Task</h3>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete the task "<span id="deleteTaskName"></span>"?</p>
+            <p id="deleteModalSubtext" class="modal-subtext">This action can be undone by administrators if needed.</p>
+          </div>
+          <div class="modal-footer">
+            <button id="cancelDeleteBtn" class="btn-secondary">Cancel</button>
+            <button id="confirmDeleteBtn" class="btn-danger">Yes, Delete</button>
+          </div>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button id="cancelDeleteBtn" class="btn-secondary">Cancel</button>
-        <button id="confirmDeleteBtn" class="btn-danger">Yes, Delete</button>
+
+      <!-- Add Project Modal -->
+      <div id="addProjectModal" class="modal-overlay hidden">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3>Add Project</h3>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="projectNameInput" class="form-label">Name</label>
+              <input type="text" id="projectNameInput" class="modal-input" placeholder="Project name" maxlength="100" />
+            </div>
+            <div class="form-group" style="margin-top: 15px;">
+              <label class="form-label">Color</label>
+              <div id="colorSelector" class="color-selector">
+                <span class="color-circle selected" data-color="#ff7066" style="background-color: #ff7066;"></span>
+                <span class="color-circle" data-color="#ffa500" style="background-color: #ffa500;"></span>
+                <span class="color-circle" data-color="#ffd700" style="background-color: #ffd700;"></span>
+                <span class="color-circle" data-color="#2ecc71" style="background-color: #2ecc71;"></span>
+                <span class="color-circle" data-color="#3498db" style="background-color: #3498db;"></span>
+                <span class="color-circle" data-color="#9b59b6" style="background-color: #9b59b6;"></span>
+                <span class="color-circle" data-color="#e056fd" style="background-color: #e056fd;"></span>
+                <span class="color-circle" data-color="#95a5a6" style="background-color: #95a5a6;"></span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="cancelProjectBtn" class="btn-secondary">Cancel</button>
+            <button id="saveProjectBtn" class="btn-primary">Add</button>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <!-- Delete Project Confirmation Modal -->
+      <div id="deleteProjectModal" class="modal-overlay hidden">
+        <div class="modal-card">
+          <div class="modal-header">
+            <span class="warning-icon">⚠️</span>
+            <h3>Delete Project</h3>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete the project "<span id="deleteProjectName"></span>" and all of its tasks?
+            </p>
+            <p class="modal-subtext">This action cannot be undone.</p>
+          </div>
+          <div class="modal-footer">
+            <button id="cancelDeleteProjectBtn" class="btn-secondary">Cancel</button>
+            <button id="confirmDeleteProjectBtn" class="btn-danger">Yes, Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete Section Confirmation Modal -->
+      <div id="deleteSectionModal" class="modal-overlay hidden">
+        <div class="modal-card">
+          <div class="modal-header">
+            <span class="warning-icon">⚠️</span>
+            <h3>Delete Section</h3>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete the section "<span id="deleteSectionName"></span>" and all of its tasks?
+            </p>
+            <p class="modal-subtext">This action cannot be undone.</p>
+          </div>
+          <div class="modal-footer">
+            <button id="cancelDeleteSectionBtn" class="btn-secondary">Cancel</button>
+            <button id="confirmDeleteSectionBtn" class="btn-danger">Yes, Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Command Palette / Search Modal -->
+      <div id="searchModal" class="modal-overlay hidden">
+        <div class="command-palette">
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search or type a command..." autocomplete="off" />
+            <span class="shortcut-badge">Ctrl K</span>
+          </div>
+          <div id="searchResults" class="search-results-list">
+            <!-- Dynamic list of commands and project matches -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Task Details Drawer -->
+      <div id="taskDetailsDrawer" class="details-drawer hidden">
+        <div class="drawer-backdrop" id="drawerBackdrop"></div>
+        <div class="drawer-content">
+          <div class="drawer-header">
+            <h3>Task Details</h3>
+            <button id="closeDrawerBtn" class="close-drawer-btn" title="Close Drawer">✕</button>
+          </div>
+          <div class="drawer-body">
+            <!-- Title/Text field -->
+            <div class="drawer-group">
+              <label for="drawerTaskText" class="drawer-label">Task Name</label>
+              <input type="text" id="drawerTaskText" class="drawer-input-title" placeholder="Task name..."
+                maxlength="200" />
+            </div>
+
+            <!-- Meta row (Due Date, Priority) -->
+            <div class="drawer-row">
+              <div class="drawer-col">
+                <label for="drawerTaskDueDate" class="drawer-label">📅 Due Date</label>
+                <input type="date" id="drawerTaskDueDate" class="drawer-input" />
+              </div>
+              <div class="drawer-col">
+                <label for="drawerTaskPriority" class="drawer-label">🚩 Priority</label>
+                <select id="drawerTaskPriority" class="drawer-input">
+                  <option value="low">🔵 Low</option>
+                  <option value="medium">🟡 Medium</option>
+                  <option value="high">🔴 High</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="drawer-row">
+              <div class="drawer-col">
+                <label for="drawerTaskRecurrence" class="drawer-label">🔁 Repeat</label>
+                <select id="drawerTaskRecurrence" class="drawer-input">
+                  <option value="none">No repeat</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+              <div class="drawer-col">
+                <label for="drawerTaskReminderDate" class="drawer-label">⏰ Reminder</label>
+                <input type="datetime-local" id="drawerTaskReminderDate" class="drawer-input" />
+              </div>
+            </div>
+
+            <!-- Project & Section row -->
+            <div class="drawer-row">
+              <div class="drawer-col">
+                <label for="drawerTaskProject" class="drawer-label">📂 Project</label>
+                <select id="drawerTaskProject" class="drawer-input">
+                  <option value="">Inbox (No Project)</option>
+                  <!-- Filled dynamically -->
+                </select>
+              </div>
+              <div class="drawer-col" id="drawerSectionCol">
+                <label for="drawerTaskSection" class="drawer-label">📋 Section</label>
+                <select id="drawerTaskSection" class="drawer-input">
+                  <option value="">No Section</option>
+                  <!-- Filled dynamically -->
+                </select>
+              </div>
+            </div>
+
+
+            <!-- Description/Notes -->
+            <div class="drawer-group">
+              <label for="drawerTaskDescription" class="drawer-label">📝 Description / Notes</label>
+              <textarea id="drawerTaskDescription" class="drawer-textarea"
+                placeholder="Add details or markdown notes..."></textarea>
+            </div>
+
+            <!-- Subtasks manager -->
+            <div class="drawer-group">
+              <div class="drawer-subtasks-header">
+                <label class="drawer-label">Checklist & Subtasks</label>
+                <span id="drawerSubtaskProgressText" class="drawer-subtasks-count">0 of 0 (0%)</span>
+              </div>
+              <div class="drawer-progress-track">
+                <div id="drawerProgressBar" class="drawer-progress-fill" style="width: 0%;"></div>
+              </div>
+              <ul id="drawerSubtaskList" class="drawer-subtask-list"></ul>
+              <div class="drawer-add-subtask-row">
+                <input type="text" id="newSubtaskInput" class="drawer-input-subtask" placeholder="Add a subtask... (press Enter)"
+                  maxlength="150" />
+                <button id="addSubtaskBtn" class="btn-subtask-add">Add</button>
+              </div>
+            </div>
+          </div>
+          <div class="drawer-footer">
+            <button id="deleteDrawerTaskBtn" class="btn-danger-outline">🗑 Delete Task</button>
+            <button id="saveDrawerBtn" class="btn-primary">Save Changes</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
   </div>
 
-</main>
-</div>
+  <!-- Floating Project Options Context Menu -->
+  <div id="projectContextMenu" class="project-context-menu hidden">
+    <button class="context-item" id="ctxFavoriteBtn">⭐ Add to Favorites</button>
+    <button class="context-item" id="ctxEditBtn">✏️ Edit Project</button>
+    <button class="context-item" id="ctxDuplicateBtn">📋 Duplicate Project</button>
+    <button class="context-item" id="ctxExportCsvBtn">📥 Export to CSV</button>
+    <button class="context-item" id="ctxImportCsvBtn">📤 Import from CSV</button>
+    <div class="context-divider"></div>
+    <button class="context-item" id="ctxArchiveBtn">🗃️ Archive Project</button>
+    <button class="context-item danger" id="ctxDeleteBtn">🗑️ Delete Project</button>
+  </div>
 
-<script src="/js/todo.js"></script>
+  <!-- Hidden File Input for CSV Import -->
+  <input type="file" id="csvFileInput" accept=".csv" style="display:none;" />
+
+  <script src="/js/todo.js"></script>
 
 </body>
+
 </html>

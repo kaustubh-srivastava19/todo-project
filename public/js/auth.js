@@ -128,7 +128,7 @@ async function handleLogin() {
 // ===============================
 async function checkSession() {
   try {
-    const res = await fetch("/api/auth/check", {
+    const res = await fetch("/api/auth/status", {
       method: "GET",
       credentials: "include",
     });

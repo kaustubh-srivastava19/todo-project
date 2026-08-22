@@ -109,6 +109,7 @@ app.use(express.static(path.join(__dirname, "../public")));
 // ✅ ROUTES
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/todos", require("./routes/todoRoutes"));
+app.use("/api/projects", require("./routes/projectRoutes"));
 
 // ✅ 404 HANDLER
 app.use((req, res) => {
