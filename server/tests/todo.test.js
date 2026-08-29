@@ -39,6 +39,23 @@ describe("Todo APIs", () => {
     expect(res.statusCode).toBe(201);
   });
 
+  test("Preserve special characters and toggle todo completion", async () => {
+    const createRes = await request(app)
+      .post("/api/todos")
+      .set("Cookie", cookie)
+      .send({ text: "Review / update <task> & notes" });
+
+    expect(createRes.statusCode).toBe(201);
+    expect(createRes.body.data.text).toBe("Review / update <task> & notes");
+
+    const toggleRes = await request(app)
+      .patch(`/api/todos/${createRes.body.data._id}`)
+      .set("Cookie", cookie);
+
+    expect(toggleRes.statusCode).toBe(200);
+    expect(toggleRes.body.data.completed).toBe(true);
+  });
+
   test("Reject unauthenticated access", async () => {
     const res = await request(app).get("/api/todos");
 

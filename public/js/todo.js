@@ -317,9 +317,13 @@ function renderTodos(todos, filterType = null) {
   const done = todos.filter(t => t.completed).length;
   const statsEl = document.getElementById("taskStats");
   if (statsEl) {
-    statsEl.innerHTML = todos.length > 0
-      ? `<span class="stat-done">✅ ${done} done</span> · ${todos.length - done} remaining`
-      : "";
+    if (todos.length === 0) {
+      statsEl.innerHTML = "";
+    } else if (done > 0) {
+      statsEl.innerHTML = `<span class="stat-done">✅ ${done} done</span>`;
+    } else {
+      statsEl.innerHTML = "";
+    }
   }
 
   // Update notifications badge
@@ -1012,7 +1016,10 @@ async function undoDeletedTodo() {
 /* ================= TOGGLE ================= */
 
 async function toggleTodo(id) {
-  const result = await apiFetch(`/api/todos/${id}/toggle`, {
+  // The server route is: PATCH /api/todos/:todoId
+  // So the correct URL is just /api/todos/${id} — no '/toggle' suffix.
+  // Previously this called /api/todos/${id}/toggle which matched no route → 404 error.
+  const result = await apiFetch(`/api/todos/${id}`, {
     method: "PATCH",
   });
 
@@ -1346,18 +1353,38 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target.id === "searchModal") closeSearchModal();
   });
 
+  // ── Custom Tooltips System ──
+  initCustomTooltips();
+
   // ── Sidebar Toggle ──
   const sidebar = document.querySelector(".sidebar");
   const sidebarToggleBtn = document.getElementById("sidebarToggleBtn");
+  const sidebarToggleIcon = document.getElementById("sidebarToggleIcon");
+
+  function updateSidebarToggleBtn(isCollapsed) {
+    if (sidebarToggleIcon) {
+      // Show arrow when collapsed (indicating click to expand), hamburger when expanded
+      sidebarToggleIcon.innerHTML = isCollapsed ? "&#10140;" : "&#9776;";
+    }
+    if (sidebarToggleBtn) {
+      const label = isCollapsed ? "Expand sidebar" : "Collapse sidebar";
+      sidebarToggleBtn.setAttribute("data-tooltip", label);
+      sidebarToggleBtn.setAttribute("aria-label", label);
+      sidebarToggleBtn.removeAttribute("title");
+    }
+  }
 
   // Restore saved state
-  if (localStorage.getItem("sidebarCollapsed") === "true") {
+  const initialCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
+  if (initialCollapsed) {
     sidebar?.classList.add("collapsed");
   }
+  updateSidebarToggleBtn(initialCollapsed);
 
   sidebarToggleBtn?.addEventListener("click", () => {
     const isCollapsed = sidebar?.classList.toggle("collapsed");
     localStorage.setItem("sidebarCollapsed", isCollapsed ? "true" : "false");
+    updateSidebarToggleBtn(!!isCollapsed);
   });
 
   // ── Notifications Bell ──
@@ -1411,13 +1438,16 @@ function updateNotifBadge() {
   const badge = document.getElementById("notifBadge");
   if (!badge) return;
 
-  const unreadCount = getNotifTodos().filter(t => !readNotifIds.has(t._id)).length;
+  const unreadCount = getNotifTodos()
+    .filter(t => !t.completed && !readNotifIds.has(t._id))
+    .length;
 
   if (unreadCount > 0) {
     badge.textContent = unreadCount > 9 ? "9+" : unreadCount;
     badge.classList.remove("hidden");
   } else {
     badge.classList.add("hidden");
+    badge.textContent = "0";
   }
 }
 
@@ -1776,13 +1806,20 @@ function renderProjectView(project) {
 
   list.innerHTML = "";
 
-  // Stats
+  // Stats — same logic as renderTodos: don't show "0 done" when no tasks are completed.
   const done = projectTodos.filter(t => t.completed).length;
+  const pending = projectTodos.length - done;
   const statsEl = document.getElementById("taskStats");
   if (statsEl) {
-    statsEl.innerHTML = projectTodos.length > 0
-      ? `<span class="stat-done">✅ ${done} done</span> · ${projectTodos.length - done} remaining`
-      : "";
+    if (projectTodos.length === 0) {
+      statsEl.innerHTML = "";
+    } else if (done === 0) {
+      statsEl.innerHTML = `<span class="stat-remaining">${pending} task${pending !== 1 ? 's' : ''} remaining</span>`;
+    } else if (done === projectTodos.length) {
+      statsEl.innerHTML = `<span class="stat-done">✅ ${done} done</span>`;
+    } else {
+      statsEl.innerHTML = `<span class="stat-done">✅ ${done} done</span> · ${pending} remaining`;
+    }
   }
 
   // --- Unsectioned tasks ---
@@ -2846,7 +2883,117 @@ async function submitDeleteProject() {
   await filterTodos("all");
 }
 
+/* ================= MODERN CUSTOM TOOLTIPS ================= */
+
+function initCustomTooltips() {
+  const tooltip = document.getElementById("customTooltip");
+  if (!tooltip) return;
+
+  let activeTarget = null;
+
+  function showTooltip(target) {
+    const text = target.getAttribute("data-tooltip") || target.getAttribute("title");
+    if (!text || !text.trim()) return;
+
+    if (target.hasAttribute("title")) {
+      target.setAttribute("data-tooltip", target.getAttribute("title"));
+      target.removeAttribute("title");
+    }
+
+    tooltip.textContent = target.getAttribute("data-tooltip");
+    tooltip.classList.remove("hidden");
+    activeTarget = target;
+
+    const rect = target.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+
+    let top = rect.bottom + 8;
+    let left = rect.left + rect.width / 2 - tooltipRect.width / 2;
+
+    // Boundary checks
+    if (top + tooltipRect.height > window.innerHeight - 8) {
+      top = rect.top - tooltipRect.height - 8;
+    }
+    if (left < 8) left = 8;
+    if (left + tooltipRect.width > window.innerWidth - 8) {
+      left = window.innerWidth - tooltipRect.width - 8;
+    }
+
+    tooltip.style.top = `${top}px`;
+    tooltip.style.left = `${left}px`;
+  }
+
+  function hideTooltip() {
+    tooltip.classList.add("hidden");
+    activeTarget = null;
+  }
+
+  document.addEventListener("mouseover", (e) => {
+    const target = e.target.closest("[data-tooltip], [title]");
+    if (target && target !== tooltip) {
+      showTooltip(target);
+    }
+  });
+
+  document.addEventListener("mouseout", (e) => {
+    const target = e.target.closest("[data-tooltip], [title]");
+    if (target && target === activeTarget) {
+      hideTooltip();
+    }
+  });
+
+  document.addEventListener("click", () => {
+    hideTooltip();
+  });
+
+  window.addEventListener("scroll", () => {
+    if (activeTarget) hideTooltip();
+  }, { passive: true });
+}
+
 /* ================= COMMAND PALETTE SEARCH LOGIC ================= */
+
+function updateSearchNavArrows() {
+  const container = document.getElementById("searchResults");
+  const upBtn = document.getElementById("searchNavUp");
+  const downBtn = document.getElementById("searchNavDown");
+  if (!container || !upBtn || !downBtn) return;
+
+  if (searchItems.length === 0) {
+    upBtn.classList.add("disabled");
+    downBtn.classList.add("disabled");
+    return;
+  }
+
+  const isScrollable = container.scrollHeight > (container.clientHeight + 4);
+  let isAtTop = false;
+  let isAtBottom = false;
+
+  if (isScrollable) {
+    const isScrolledToTop = container.scrollTop <= 4;
+    const isScrolledToBottom = (container.scrollTop + container.clientHeight) >= (container.scrollHeight - 4);
+
+    isAtTop = isScrolledToTop;
+    isAtBottom = isScrolledToBottom;
+  } else {
+    isAtTop = selectedSearchIndex <= 0;
+    isAtBottom = selectedSearchIndex >= searchItems.length - 1;
+  }
+
+  if (isAtTop) {
+    upBtn.classList.add("disabled");
+  } else {
+    upBtn.classList.remove("disabled");
+  }
+
+  if (isAtBottom) {
+    downBtn.classList.add("disabled");
+  } else {
+    downBtn.classList.remove("disabled");
+  }
+}
+
+let searchEventsInitialized = false;
 
 function openSearchModal() {
   const modal = document.getElementById("searchModal");
@@ -2857,6 +3004,36 @@ function openSearchModal() {
     modal.classList.remove("hidden");
     input.focus();
     renderSearchResults();
+
+    if (!searchEventsInitialized) {
+      searchEventsInitialized = true;
+      const resultsContainer = document.getElementById("searchResults");
+      resultsContainer?.addEventListener("scroll", updateSearchNavArrows, { passive: true });
+
+      document.getElementById("searchNavUp")?.addEventListener("click", () => {
+        const container = document.getElementById("searchResults");
+        if (selectedSearchIndex > 0) {
+          selectedSearchIndex--;
+          highlightSearchItem(selectedSearchIndex);
+        } else if (container) {
+          container.scrollBy({ top: -60, behavior: "smooth" });
+        }
+        updateSearchNavArrows();
+      });
+
+      document.getElementById("searchNavDown")?.addEventListener("click", () => {
+        const container = document.getElementById("searchResults");
+        if (selectedSearchIndex < searchItems.length - 1) {
+          selectedSearchIndex++;
+          highlightSearchItem(selectedSearchIndex);
+        } else if (container) {
+          container.scrollBy({ top: 60, behavior: "smooth" });
+        }
+        updateSearchNavArrows();
+      });
+    }
+
+    setTimeout(updateSearchNavArrows, 50);
   }
 }
 
@@ -2871,7 +3048,6 @@ function closeSearchModal() {
     }
   }
 }
-
 
 function addToRecentlyViewed(id, type, label, color = null) {
   // Check if already in list
@@ -3024,6 +3200,7 @@ function renderSearchResults() {
   } else {
     selectedSearchIndex = -1;
   }
+  updateSearchNavArrows();
 }
 
 function createSearchItemElement(item, index) {
@@ -3087,6 +3264,7 @@ function highlightSearchItem(index) {
     target.classList.add("highlighted");
     target.scrollIntoView({ block: "nearest" });
   }
+  updateSearchNavArrows();
 }
 
 function executeSearchItem(item) {
@@ -3114,12 +3292,18 @@ function handleSearchKeydown(e) {
 
   if (e.key === "ArrowDown") {
     e.preventDefault();
-    selectedSearchIndex = (selectedSearchIndex + 1) % searchItems.length;
-    highlightSearchItem(selectedSearchIndex);
+    if (selectedSearchIndex < searchItems.length - 1) {
+      selectedSearchIndex++;
+      highlightSearchItem(selectedSearchIndex);
+    }
+    updateSearchNavArrows();
   } else if (e.key === "ArrowUp") {
     e.preventDefault();
-    selectedSearchIndex = (selectedSearchIndex - 1 + searchItems.length) % searchItems.length;
-    highlightSearchItem(selectedSearchIndex);
+    if (selectedSearchIndex > 0) {
+      selectedSearchIndex--;
+      highlightSearchItem(selectedSearchIndex);
+    }
+    updateSearchNavArrows();
   } else if (e.key === "Enter") {
     e.preventDefault();
     if (selectedSearchIndex >= 0 && selectedSearchIndex < searchItems.length) {

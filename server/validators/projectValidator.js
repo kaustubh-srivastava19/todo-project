@@ -7,8 +7,9 @@ exports.createProjectValidation = [
     .notEmpty()
     .withMessage("Project name is required")
     .isLength({ max: 100 })
-    .withMessage("Project name too long (max 100 chars)")
-    .escape(),
+    .withMessage("Project name too long (max 100 chars)"),
+    // Note: .escape() removed — same reason as todoValidator: prevents HTML-encoding of special chars.
+    // Rendered safely via textContent on the frontend.
 
   body("color")
     .optional()
@@ -24,8 +25,8 @@ exports.updateProjectValidation = [
     .notEmpty()
     .withMessage("Project name cannot be empty")
     .isLength({ max: 100 })
-    .withMessage("Project name too long (max 100 chars)")
-    .escape(),
+    .withMessage("Project name too long (max 100 chars)"),
+    // Note: .escape() removed.
 
   body("color")
     .optional()
@@ -50,6 +51,6 @@ exports.sectionValidation = [
     .notEmpty()
     .withMessage("Section name is required")
     .isLength({ max: 100 })
-    .withMessage("Section name too long (max 100 chars)")
-    .escape(),
+    .withMessage("Section name too long (max 100 chars)"),
+    // Note: .escape() removed.
 ];

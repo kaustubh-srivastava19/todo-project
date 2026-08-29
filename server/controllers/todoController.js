@@ -182,7 +182,7 @@ exports.updateTodo = asyncHandler(async (req, res) => {
 // TOGGLE TODO
 exports.toggleTodo = asyncHandler(async (req, res) => {
   const todo = await Todo.findOne({
-    _id: req.params.id,
+    _id: req.params.todoId,
     user: req.userId,
   });
 

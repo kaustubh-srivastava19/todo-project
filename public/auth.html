@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Authentication</title>
+  <title>Authentication - TodoApp</title>
 
   <link rel="stylesheet" href="/css/style.css" />
 </head>
@@ -17,36 +17,59 @@
     <div id="signup-form">
 
       <h2>Create Account</h2>
+      <p class="auth-subtitle">Sign up to manage your tasks effortlessly</p>
 
-      <input
-        type="text"
-        id="signup-firstname"
-        placeholder="First Name"
-      />
+      <div id="signup-general-error" class="form-alert-error" style="display:none;"></div>
 
-      <input
-        type="text"
-        id="signup-lastname"
-        placeholder="Last Name"
-      />
+      <div class="form-group">
+        <label for="signup-firstname">First Name</label>
+        <input
+          type="text"
+          id="signup-firstname"
+          placeholder="First Name"
+          autocomplete="given-name"
+        />
+        <div class="field-error" id="signup-firstname-error"></div>
+      </div>
 
-      <input
-        type="email"
-        id="signup-email"
-        placeholder="Email"
-      />
+      <div class="form-group">
+        <label for="signup-lastname">Last Name</label>
+        <input
+          type="text"
+          id="signup-lastname"
+          placeholder="Last Name"
+          autocomplete="family-name"
+        />
+        <div class="field-error" id="signup-lastname-error"></div>
+      </div>
 
-      <input
-        type="password"
-        id="signup-password"
-        placeholder="Password"
-      />
+      <div class="form-group">
+        <label for="signup-email">Email</label>
+        <input
+          type="email"
+          id="signup-email"
+          placeholder="Email address"
+          autocomplete="email"
+        />
+        <div class="field-error" id="signup-email-error"></div>
+      </div>
 
-      <button id="signup-btn">
+      <div class="form-group">
+        <label for="signup-password">Password</label>
+        <input
+          type="password"
+          id="signup-password"
+          placeholder="At least 12 characters"
+          autocomplete="new-password"
+        />
+        <div class="field-error" id="signup-password-error"></div>
+      </div>
+
+      <button id="signup-btn" class="auth-submit-btn" type="button">
         Sign Up
       </button>
 
-      <p style="margin-top:15px; text-align:center;">
+      <p class="auth-switch-text">
         Already have an account?
         <a href="#" id="show-login">
           Login
@@ -58,25 +81,38 @@
     <!-- LOGIN FORM -->
     <div id="login-form" style="display:none;">
 
-      <h2>Login</h2>
+      <h2>Welcome Back</h2>
+      <p class="auth-subtitle">Login to access your todo dashboard</p>
 
-      <input
-        type="email"
-        id="login-email"
-        placeholder="Email"
-      />
+      <div id="login-general-error" class="form-alert-error" style="display:none;"></div>
 
-      <input
-        type="password"
-        id="login-password"
-        placeholder="Password"
-      />
+      <div class="form-group">
+        <label for="login-email">Email</label>
+        <input
+          type="email"
+          id="login-email"
+          placeholder="Email address"
+          autocomplete="email"
+        />
+        <div class="field-error" id="login-email-error"></div>
+      </div>
 
-      <button id="login-btn">
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <input
+          type="password"
+          id="login-password"
+          placeholder="Password"
+          autocomplete="current-password"
+        />
+        <div class="field-error" id="login-password-error"></div>
+      </div>
+
+      <button id="login-btn" class="auth-submit-btn" type="button">
         Login
       </button>
 
-      <p style="margin-top:15px; text-align:center;">
+      <p class="auth-switch-text">
         Don't have an account?
         <a href="#" id="show-signup">
           Sign Up

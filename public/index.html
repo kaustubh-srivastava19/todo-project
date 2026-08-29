@@ -62,9 +62,9 @@
     <main class="content">
 
       <div class="topbar">
-        <div style="display:flex; align-items:center; gap:14px;">
-          <button id="sidebarToggleBtn" class="sidebar-toggle-btn" title="Toggle sidebar" aria-label="Toggle sidebar">
-            &#9776;
+        <div class="topbar-title-wrapper">
+          <button id="sidebarToggleBtn" class="sidebar-toggle-btn" data-tooltip="Collapse sidebar" aria-label="Toggle sidebar">
+            <span id="sidebarToggleIcon" class="sidebar-toggle-icon">&#9776;</span>
           </button>
           <h1 id="pageTitle">Inbox</h1>
         </div>
@@ -266,6 +266,14 @@
           <div id="searchResults" class="search-results-list">
             <!-- Dynamic list of commands and project matches -->
           </div>
+          <div class="search-palette-footer">
+            <div class="search-nav-hints">
+              <span class="search-nav-badge" id="searchNavUp"><kbd>↑</kbd> Up</span>
+              <span class="search-nav-badge" id="searchNavDown"><kbd>↓</kbd> Down</span>
+              <span class="search-nav-badge"><kbd>↵</kbd> Select</span>
+              <span class="search-nav-badge"><kbd>Esc</kbd> Close</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -384,6 +392,9 @@
 
   <!-- Hidden File Input for CSV Import -->
   <input type="file" id="csvFileInput" accept=".csv" style="display:none;" />
+
+  <!-- Global Custom Tooltip -->
+  <div id="customTooltip" class="custom-tooltip hidden"></div>
 
   <script src="/js/todo.js"></script>
 

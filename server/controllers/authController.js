@@ -29,6 +29,11 @@ exports.signup = async (req, res) => {
       userId: user._id,
     });
 
+    const token = jwt.sign({ id: user._id }, config.jwt.secret);
+
+    res.cookie("token", token, { httpOnly: true, secure: true, sameSite: "none" });
+    setCsrfToken(req, res, () => { });
+
     res.status(201).json({
       success: true,
       data: { message: "User created successfully" },

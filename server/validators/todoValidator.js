@@ -7,8 +7,7 @@ exports.createTodoValidation = [
     .notEmpty()
     .withMessage("Text is required")
     .isLength({ max: 200 })
-    .withMessage("Text too long (max 200 chars)")
-    .escape(), // prevents XSS
+    .withMessage("Text too long (max 200 chars)"),
 
   body("dueDate").optional().isISO8601().withMessage("Invalid date format"),
 
@@ -55,8 +54,7 @@ exports.updateTodoValidation = [
     .notEmpty()
     .withMessage("Text is required")
     .isLength({ max: 200 })
-    .withMessage("Text too long")
-    .escape(),
+    .withMessage("Text too long"),
 
   body("dueDate").optional().isISO8601().withMessage("Invalid date format"),
 
